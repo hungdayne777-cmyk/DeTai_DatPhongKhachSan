@@ -14,10 +14,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author PC_33
+ * @author MSI
  */
-@WebServlet(name = "HomeServlet", urlPatterns = {"/Trang-chu"})
-public class HomeServlet extends HttpServlet {
+@WebServlet(name = "GioiThieuServlet", urlPatterns = {"/GioiThieu"})
+public class GioiThieuServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -36,10 +36,10 @@ public class HomeServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeServlet</title>");
+            out.println("<title>Servlet GioiThieuServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet GioiThieuServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -58,7 +58,7 @@ public class HomeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         //processRequest(request, response);
-        request.getRequestDispatcher("index.jsp").forward(request, response);
+        request.getRequestDispatcher("/view/about.jsp").forward(request, response);
     }
 
     /**

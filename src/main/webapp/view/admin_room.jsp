@@ -15,61 +15,61 @@
             </a>
         </div>
         <!-- Hiển thị thông báo thành công từ Session trong trang Quản trị -->
-      
+
         <c:if test="${not empty sessionScope.message}">
-         
+
             <c:set var="isError" value="${sessionScope.message.contains('Không thể') || sessionScope.message.contains('thất bại')}" />
-            
+
             <div class="alert ${isError ? 'alert-danger' : 'alert-success'} alert-dismissible fade show shadow-sm mb-4" role="alert">
-                
+
                 <i class="fa ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}" style="margin-right: 5px;"></i> 
                 ${sessionScope.message}
-                
+
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <c:remove var="message" scope="session"/>
         </c:if>
-       <form action="${pageContext.request.contextPath}/admin/room" method="POST" class="card border-0 shadow-sm p-3 mb-4 bg-white rounded">
-    <!-- Thêm action=list để servlet biết đường điều hướng đúng -->
-    <input type="hidden" name="action" value="list">
+        <form action="${pageContext.request.contextPath}/admin/room" method="POST" class="card border-0 shadow-sm p-3 mb-4 bg-white rounded">
+            <!-- Thêm action=list để servlet biết đường điều hướng đúng -->
+            <input type="hidden" name="action" value="list">
 
-    <div class="row align-items-end g-3">
-        <!-- Ô Tìm kiếm tên phòng -->
-        <div class="col-md-5">
-            <label class="form-label fw-bold text-secondary small text-uppercase mb-1">
-                <i class="fas fa-search me-1 text-primary"></i> Tìm kiếm tên phòng
-            </label>
-            <div class="input-group">
-                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
-                <input type="text" class="form-control border-start-0 ps-0" name="keyword" value="${param.keyword}" placeholder="Nhập tên phòng cần tìm...">
+            <div class="row align-items-end g-3">
+                <!-- Ô Tìm kiếm tên phòng -->
+                <div class="col-md-5">
+                    <label class="form-label fw-bold text-secondary small text-uppercase mb-1">
+                        <i class="fas fa-search me-1 text-primary"></i> Tìm kiếm tên phòng
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0" name="keyword" value="${param.keyword}" placeholder="Nhập tên phòng cần tìm...">
+                    </div>
+                </div>
+
+                <!-- Ô Lọc Tình Trạng -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-secondary small text-uppercase mb-1">
+                        <i class="fas fa-filter me-1 text-success"></i> Tình Trạng
+                    </label>
+                    <select class="form-select" name="status">
+                        <option value="">-- Tất cả tình trạng --</option>
+                        <option value="Trống" ${param.status == 'Trống' ? 'selected' : ''}>Trống</option>
+                        <option value="Đang thuê" ${param.status == 'Đang thuê' ? 'selected' : ''}>Đang thuê</option>
+                    </select>
+                </div>
+
+                <!-- Cụm Nút bấm thao tác -->
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark fw-bold py-2">
+                        <i class="fas fa-search me-1"></i> Lọc
+                    </button>
+                    <a href="${pageContext.request.contextPath}/admin/room?action=list" class="btn btn-outline-secondary py-2 px-3" title="Làm mới bộ lọc">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+                </div>
             </div>
-        </div>
-
-        <!-- Ô Lọc Tình Trạng -->
-        <div class="col-md-4">
-            <label class="form-label fw-bold text-secondary small text-uppercase mb-1">
-                <i class="fas fa-filter me-1 text-success"></i> Tình Trạng
-            </label>
-            <select class="form-select" name="status">
-                <option value="">-- Tất cả tình trạng --</option>
-                <option value="Trống" ${param.status == 'Trống' ? 'selected' : ''}>Trống</option>
-                <option value="Đang thuê" ${param.status == 'Đang thuê' ? 'selected' : ''}>Đang thuê</option>
-            </select>
-        </div>
-
-        <!-- Cụm Nút bấm thao tác -->
-        <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="btn btn-dark fw-bold py-2">
-                <i class="fas fa-search me-1"></i> Lọc
-            </button>
-            <a href="${pageContext.request.contextPath}/admin/room?action=list" class="btn btn-outline-secondary py-2 px-3" title="Làm mới bộ lọc">
-                <i class="fas fa-sync-alt"></i>
-            </a>
-        </div>
-    </div>
-</form>
+        </form>
         <!-- Bảng hiển thị dữ liệu -->
         <div class="table-responsive">
             <table class="table table-hover align-middle custom-admin-table">
@@ -123,11 +123,68 @@
                 </tbody>
             </table>
         </div>
-    </div>
+        <c:if test="${totalPages > 1}">
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center custom-pagination">
+                    <!-- Nút Previous -->
+                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="${pageContext.request.contextPath}/admin/room?action=list&page=${currentPage - 1}&keyword=${keyword != null ? keyword : ''}&status=${status != null ? status : ''}">
+                            <i class="fas fa-angle-left"></i> Trước
+                        </a>
+                    </li>
+
+                    <!-- Các nút số trang -->
+                    <c:forEach begin="1" end="${totalPages}" var="i">
+                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/admin/room?action=list&page=${i}&keyword=${keyword != null ? keyword : ''}&status=${status != null ? status : ''}">
+                                ${i}
+                            </a>
+                        </li>
+                    </c:forEach>
+
+                    <!-- Nút Next -->
+                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="${pageContext.request.contextPath}/admin/room?action=list&page=${currentPage + 1}&keyword=${keyword != null ? keyword : ''}&status=${status != null ? status : ''}">
+                            Sau <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </c:if>
+    
+</div>
 </div>
 
 <!-- CSS tinh chỉnh riêng cho bảng rõ nét hơn -->
 <style>
+    .custom-pagination .page-item .page-link {
+        color: #212529; /* Màu chữ đen cơ bản */
+        border-color: #dee2e6;
+        font-weight: 600;
+        transition: all 0.2s ease-in-out;
+    }
+
+    /* Hiệu ứng khi rê chuột (Hover) vào các nút số trang */
+    .custom-pagination .page-item .page-link:hover {
+        color: #dc3545; /* Chữ chuyển sang màu đỏ */
+        background-color: #fff5f5; /* Nền đỏ nhạt hiện đại */
+        border-color: #dc3545;
+    }
+
+    /* Trang đang được chọn (Active) -> Nền đỏ, chữ trắng */
+    .custom-pagination .page-item.active .page-link {
+        background-color: #dc3545 !important; /* Màu đỏ chủ đạo */
+        border-color: #dc3545 !important;
+        color: #ffffff !important; /* Chữ trắng nổi bật */
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Trạng thái bị khóa (Disabled) như nút Trước/Sau ở đầu hoặc cuối */
+    .custom-pagination .page-item.disabled .page-link {
+        color: #adb5bd;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
     .custom-admin-table th {
         font-size: 0.85rem;
         letter-spacing: 0.5px;

@@ -91,5 +91,57 @@
                 </tbody>
             </table>
         </div>
+                        <c:if test="${totalPages > 1}">
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center custom-pagination">
+                    <!-- Nút Previous -->
+                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="${pageContext.request.contextPath}/admin/khach-hang?action=list&page=${currentPage - 1}&keyword=${keyword != null ? keyword : ''}">
+                            <i class="fas fa-angle-left"></i> Trước
+                        </a>
+                    </li>
+
+                    <!-- Các nút số trang -->
+                    <c:forEach begin="1" end="${totalPages}" var="i">
+                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/admin/khach-hang?action=list&page=${i}&keyword=${keyword != null ? keyword : ''}">
+                                ${i}
+                            </a>
+                        </li>
+                    </c:forEach>
+
+                    <!-- Nút Next -->
+                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="${pageContext.request.contextPath}/admin/khach-hang?action=list&page=${currentPage + 1}&keyword=${keyword != null ? keyword : ''}">
+                            Sau <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </c:if>
     </div>
 </div>
+                        <style>
+    .custom-pagination .page-item .page-link {
+        color: #212529;
+        border-color: #dee2e6;
+        font-weight: 600;
+        transition: all 0.2s ease-in-out;
+    }
+    .custom-pagination .page-item .page-link:hover {
+        color: #dc3545;
+        background-color: #fff5f5;
+        border-color: #dc3545;
+    }
+    .custom-pagination .page-item.active .page-link {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+    }
+    .custom-pagination .page-item.disabled .page-link {
+        color: #adb5bd;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+</style>

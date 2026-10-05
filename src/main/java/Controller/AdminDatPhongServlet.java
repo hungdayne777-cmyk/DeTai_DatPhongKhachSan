@@ -35,19 +35,42 @@ public class AdminDatPhongServlet extends HttpServlet {
         try {
             switch (action) {
                 case "list":
-                    dao.checkAndUpdateExpiredBookings();
-                    // 1. Hiển thị danh sách đặt phòng
-                    String keyword = request.getParameter("keyword");
-                    String status = request.getParameter("status");
+                   dao.checkAndUpdateExpiredBookings();
+                
+                String keyword = request.getParameter("keyword");
+                String status = request.getParameter("status");
+                
+                // Thiết lập phân trang
+                int currentPage = 1;
+                int recordsPerPage = 5; // Số dòng trên 1 trang
+                
+                String pageStr = request.getParameter("page");
+                if (pageStr != null && !pageStr.trim().isEmpty()) {
+                    try {
+                        currentPage = Integer.parseInt(pageStr);
+                        if (currentPage < 1) currentPage = 1;
+                    } catch (NumberFormatException e) {
+                        currentPage = 1;
+                    }
+                }
+                
+                // Lấy tổng số bản ghi theo bộ lọc
+                int totalRecords = dao.getTotalSearchDatPhong(keyword, status);
+                int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+                if (totalPages == 0) totalPages = 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+                
+                // Lấy danh sách theo trang hiện tại
+                List<DatPhong> list = dao.searchDatPhongPaging(keyword, status, currentPage, recordsPerPage);
 
-                    List<DatPhong> list = dao.searchDatPhong(keyword, status);
+                request.setAttribute("keyword", keyword);
+                request.setAttribute("status", status);
+                request.setAttribute("datPhongList", list);
+                request.setAttribute("currentPage", currentPage);
+                request.setAttribute("totalPages", totalPages);
 
-                    request.setAttribute("keyword", keyword);
-                    request.setAttribute("status", status);
-                    request.setAttribute("datPhongList", list);
-
-                    request.setAttribute("contentPage", "admindatphong.jsp");
-                    request.getRequestDispatcher("../admin.jsp").forward(request, response);
+                request.setAttribute("contentPage", "admindatphong.jsp");
+                request.getRequestDispatcher("../admin.jsp").forward(request, response);
                     break;
 
                 case "form-add":

@@ -43,14 +43,14 @@ public class GuiLienHeServlet extends HttpServlet {
             session.setAttribute("message", "Gửi liên hệ thất bại. Vui lòng thử lại sau!");
         }
 
-        // 3. Chuyển hướng người dùng về lại trang liên hệ (contact.jsp)
+       
         response.sendRedirect(request.getContextPath() + "/view/contact.jsp");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Nếu người dùng gõ trực tiếp đường dẫn get vào /gui-lien-he thì đá về trang contact
-        response.sendRedirect(request.getContextPath() + "/view/contact.jsp");
+    
+   request.getRequestDispatcher("/view/contact.jsp").forward(request, response);
     }
 }

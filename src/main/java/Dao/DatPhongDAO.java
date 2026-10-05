@@ -376,4 +376,102 @@ public void checkAndUpdateExpiredBookings() {
         e.printStackTrace();
     }
 }
+public int getTotalSearchDatPhong(String keyword, String trangThai) {
+        StringBuilder query = new StringBuilder(
+            "SELECT COUNT(*) FROM DatPhong dp " +
+            "LEFT JOIN KhachHang kh ON dp.MaKH = kh.MaKH " +
+            "LEFT JOIN Phong p ON dp.MaPhong = p.MaPhong " +
+            "WHERE 1=1"
+        );
+        boolean hasKeyword = (keyword != null && !keyword.trim().isEmpty());
+        boolean hasTrangThai = (trangThai != null && !trangThai.trim().isEmpty());
+        
+        if (hasKeyword) {
+            query.append(" AND (dp.MaDP LIKE ? OR dp.MaPhong LIKE ? OR dp.MaKH LIKE ? OR kh.HoTen LIKE ?)");
+        }
+        if (hasTrangThai) {
+            query.append(" AND dp.TrangThai = ?");
+        }
+        
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query.toString())) {
+            int paramIndex = 1;
+            if (hasKeyword) {
+                String searchLike = "%" + keyword.trim() + "%";
+                ps.setString(paramIndex++, searchLike);
+                ps.setString(paramIndex++, searchLike);
+                ps.setString(paramIndex++, searchLike);
+                ps.setString(paramIndex++, searchLike);
+            }
+            if (hasTrangThai) {
+                ps.setString(paramIndex++, trangThai.trim());
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+   
+    public List<DatPhong> searchDatPhongPaging(String keyword, String trangThai, int page, int recordsPerPage) {
+        List<DatPhong> list = new ArrayList<>();
+        StringBuilder query = new StringBuilder(
+            "SELECT dp.*, kh.HoTen, p.TenPhong " +
+            "FROM DatPhong dp " +
+            "LEFT JOIN KhachHang kh ON dp.MaKH = kh.MaKH " +
+            "LEFT JOIN Phong p ON dp.MaPhong = p.MaPhong " +
+            "WHERE 1=1"
+        );
+        
+        boolean hasKeyword = (keyword != null && !keyword.trim().isEmpty());
+        boolean hasTrangThai = (trangThai != null && !trangThai.trim().isEmpty());
+        
+        if (hasKeyword) {
+            query.append(" AND (dp.MaDP LIKE ? OR dp.MaPhong LIKE ? OR dp.MaKH LIKE ? OR kh.HoTen LIKE ?)");
+        }
+        if (hasTrangThai) {
+            query.append(" AND dp.TrangThai = ?");
+        }
+        
+        // SQL Server bắt buộc phải có ORDER BY khi dùng OFFSET và FETCH
+        query.append(" ORDER BY dp.NgayDat DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query.toString())) {
+            
+            int paramIndex = 1;
+            if (hasKeyword) {
+                String searchLike = "%" + keyword.trim() + "%";
+                ps.setString(paramIndex++, searchLike);
+                ps.setString(paramIndex++, searchLike);
+                ps.setString(paramIndex++, searchLike);
+                ps.setString(paramIndex++, searchLike);
+            }
+            if (hasTrangThai) {
+                ps.setString(paramIndex++, trangThai.trim());
+            }
+            
+            // Tính toán vị trí bắt đầu (Offset)
+            int offset = (page - 1) * recordsPerPage;
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex++, recordsPerPage);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    DatPhong dp = mapResultSetToDatPhong(rs);
+                    try { dp.setTenKH(rs.getString("HoTen")); } catch (Exception ignored) {}
+                    try { dp.setSoPhong(rs.getString("TenPhong")); } catch (Exception ignored) {}
+                    list.add(dp);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

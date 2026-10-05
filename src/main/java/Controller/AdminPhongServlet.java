@@ -43,15 +43,33 @@ public class AdminPhongServlet extends HttpServlet {
                 String keyword = request.getParameter("keyword");
                 String status = request.getParameter("status");
 
-                List<Phong> list;
-                // Kiểm tra xem người dùng có nhập từ khóa tìm kiếm hoặc chọn lọc trạng thái không
-                if ((keyword != null && !keyword.trim().isEmpty()) || (status != null && !status.trim().isEmpty())) {
-                    list = dao.searchPhong(keyword, status);
-                } else {
-                    list = dao.getAllRooms(); // Hoặc dao.getAllRooms() tùy thuộc vào tên hàm trong PhongDAO của bạn
+                
+                int currentPage = 1;
+                int recordsPerPage = 5; 
+
+                String pageStr = request.getParameter("page");
+                if (pageStr != null && !pageStr.isEmpty()) {
+                    try {
+                        currentPage = Integer.parseInt(pageStr);
+                    } catch (NumberFormatException e) {
+                        currentPage = 1;
+                    }
                 }
 
+                int offset = (currentPage - 1) * recordsPerPage;
+
+            
+                List<Phong> list = dao.getRoomsByPage(keyword, status, offset, recordsPerPage);
+                int totalRecords = dao.getTotalRooms(keyword, status);
+                int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+
+               
                 request.setAttribute("roomList", list);
+                request.setAttribute("currentPage", currentPage);
+                request.setAttribute("totalPages", totalPages);
+                request.setAttribute("keyword", keyword);
+                request.setAttribute("status", status);
+
                 request.setAttribute("contentPage", "admin_room.jsp");
                 request.getRequestDispatcher("../admin.jsp").forward(request, response);
                 break;

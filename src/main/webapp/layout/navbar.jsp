@@ -46,28 +46,28 @@
                         <div class="collapse navbar-collapse" id="navbarsExample04">
                             <ul class="navbar-nav mr-auto">
                                 <li class="nav-item ">
-                                    <a class="nav-link" href="${pageContext.request.contextPath}/index.jsp">Trang chủ</a>
+                                    <a class="nav-link" href="${pageContext.request.contextPath}/Trang-chu">Trang chủ</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="${pageContext.request.contextPath}/view/about.jsp">Giới thiệu</a>
+                                    <a class="nav-link" href="${pageContext.request.contextPath}/GioiThieu">Giới thiệu</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="${pageContext.request.contextPath}/room">Phòng cho thuê</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="${pageContext.request.contextPath}/view/gallery.jsp">Thư viện ảnh</a>
+                                    <a class="nav-link" href="${pageContext.request.contextPath}/ThuVien">Thư viện ảnh</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="${pageContext.request.contextPath}/view/blog.jsp">Tin tức</a>
+                                    <a class="nav-link" href="${pageContext.request.contextPath}/TinTuc">Tin tức</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="${pageContext.request.contextPath}/view/contact.jsp">Liên hệ</a>
+                                    <a class="nav-link" href="${pageContext.request.contextPath}/gui-lien-he">Liên hệ</a>
                                 </li>
 
                                 <!-- Nếu CHƯA ĐĂNG NHẬP (Session acc trống) -->
                                 <c:if test="${empty sessionScope.acc}">
                                     <li class="nav-item">
-                                        <a class="nav-link" href="${pageContext.request.contextPath}/view/login.jsp">
+                                        <a class="nav-link" href="${pageContext.request.contextPath}/login">
                                             <i class="fa fa-user" aria-hidden="true"></i> ĐĂNG NHẬP
                                         </a>
                                     </li>

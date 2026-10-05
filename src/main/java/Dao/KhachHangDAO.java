@@ -166,4 +166,67 @@ public List<KhachHang> searchKhachHang(String keyword) {
         }
         return false;
     }
+// 8. Đếm tổng số lượng khách hàng (Hỗ trợ phân trang và tìm kiếm)
+    public int getTotalKhachHang(String keyword) {
+        String sql = "SELECT COUNT(*) FROM KhachHang";
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        if (hasKeyword) {
+            sql += " WHERE HoTen LIKE ? OR SDT LIKE ?";
+        }
+        
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (hasKeyword) {
+                ps.setString(1, "%" + keyword + "%");
+                ps.setString(2, "%" + keyword + "%");
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    
+    public List<KhachHang> getKhachHangByPage(String keyword, int offset, int limit) {
+        List<KhachHang> list = new ArrayList<>();
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        
+        String query;
+        if (hasKeyword) {
+            query = "SELECT * FROM KhachHang WHERE HoTen LIKE ? OR SDT LIKE ? ORDER BY MaKH OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        } else {
+            query = "SELECT * FROM KhachHang ORDER BY MaKH OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        }
+        
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            int index = 1;
+            if (hasKeyword) {
+                ps.setString(index++, "%" + keyword + "%");
+                ps.setString(index++, "%" + keyword + "%");
+            }
+            ps.setInt(index++, offset);
+            ps.setInt(index++, limit);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new KhachHang(
+                            rs.getString("MaKH"),
+                            rs.getString("HoTen"),
+                            rs.getString("SDT"),
+                            rs.getString("Email"),
+                            rs.getString("DiaChi")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

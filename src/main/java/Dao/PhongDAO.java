@@ -204,4 +204,102 @@ public class PhongDAO {
             e.printStackTrace();
         }
     }
+    
+    public List<Phong> getRoomsByPage(String keyword, String tinhTrang, int offset, int noOfRecords) {
+        List<Phong> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT p.MaPhong, p.TenPhong, p.MaLoai, lp.TenLoai, p.Gia, p.TinhTrang, p.hinhAnh " +
+            "FROM Phong p LEFT JOIN LoaiPhong lp ON p.MaLoai = lp.MaLoai WHERE 1=1"
+        );
+
+        boolean hasKeyword = (keyword != null && !keyword.trim().isEmpty());
+        if (hasKeyword) {
+            sql.append(" AND (p.TenPhong LIKE ? OR lp.TenLoai LIKE ? OR p.MaPhong LIKE ?)");
+        }
+
+        boolean hasStatus = (tinhTrang != null && !tinhTrang.trim().isEmpty());
+        if (hasStatus) {
+            sql.append(" AND p.TinhTrang = ?");
+        }
+
+      
+        sql.append(" ORDER BY p.TenPhong ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int paramIndex = 1;
+            if (hasKeyword) {
+                String pattern = "%" + keyword.trim() + "%";
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+            }
+            if (hasStatus) {
+                ps.setString(paramIndex++, tinhTrang);
+            }
+            // Truyền tham số cho phân trang
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex++, noOfRecords);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Phong p = new Phong();
+                    p.setMaPhong(rs.getString("MaPhong"));
+                    p.setTenPhong(rs.getString("TenPhong"));
+                    p.setMaLoai(rs.getString("MaLoai"));
+                    p.setTenLoai(rs.getString("TenLoai"));
+                    p.setGia(rs.getDouble("Gia"));
+                    p.setTinhTrang(rs.getString("TinhTrang"));
+                    p.setHinhAnh(rs.getString("hinhAnh"));
+                    list.add(p);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+  
+    public int getTotalRooms(String keyword, String tinhTrang) {
+        int count = 0;
+        StringBuilder sql = new StringBuilder(
+            "SELECT COUNT(*) FROM Phong p LEFT JOIN LoaiPhong lp ON p.MaLoai = lp.MaLoai WHERE 1=1"
+        );
+
+        boolean hasKeyword = (keyword != null && !keyword.trim().isEmpty());
+        if (hasKeyword) {
+            sql.append(" AND (p.TenPhong LIKE ? OR lp.TenLoai LIKE ? OR p.MaPhong LIKE ?)");
+        }
+
+        boolean hasStatus = (tinhTrang != null && !tinhTrang.trim().isEmpty());
+        if (hasStatus) {
+            sql.append(" AND p.TinhTrang = ?");
+        }
+
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int paramIndex = 1;
+            if (hasKeyword) {
+                String pattern = "%" + keyword.trim() + "%";
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+            }
+            if (hasStatus) {
+                ps.setString(paramIndex++, tinhTrang);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    count = rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
 }

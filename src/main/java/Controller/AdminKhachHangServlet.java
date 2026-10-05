@@ -29,22 +29,47 @@ public class AdminKhachHangServlet extends HttpServlet {
             case "list":
 
                 String keyword = request.getParameter("keyword");
-                List<KhachHang> list;
-                if (keyword != null && !keyword.trim().isEmpty()) {
-                    list = dao.searchKhachHang(keyword);
-                } else {
-                    list = dao.getAllKhachHang();
+
+             
+                int recordsPerPage = 5;
+                int currentPage = 1;
+                String pageStr = request.getParameter("page");
+                if (pageStr != null && !pageStr.isEmpty()) {
+                    try {
+                        currentPage = Integer.parseInt(pageStr);
+                    } catch (NumberFormatException e) {
+                        currentPage = 1;
+                    }
                 }
+
+             
+                int totalRecords = dao.getTotalKhachHang(keyword);
+                int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+                if (currentPage > totalPages && totalPages > 0) {
+                    currentPage = totalPages;
+                }
+
+                int offset = (currentPage - 1) * recordsPerPage;
+
+             
+                List<KhachHang> list = dao.getKhachHangByPage(keyword, offset, recordsPerPage);
+
+               
                 request.setAttribute("khachHangList", list);
+                request.setAttribute("currentPage", currentPage);
+                request.setAttribute("totalPages", totalPages);
+                request.setAttribute("keyword", keyword); 
+
+              
                 request.setAttribute("contentPage", "adminkhachhang.jsp");
                 request.getRequestDispatcher("../admin.jsp").forward(request, response);
                 break;
 
             case "form-add":
-                // Tự động sinh mã khách hàng tiếp theo (ví dụ: KH001, KH002...)
+                
                 String nextMaKH = dao.generateNextMaKH();
                 request.setAttribute("nextMaKH", nextMaKH);
-                // Giữ nguyên: form_adminkhachhang.jsp (có dấu gạch dưới theo ý bạn)
+            
                 request.setAttribute("contentPage", "form_adminkhachhang.jsp");
                 request.getRequestDispatcher("../admin.jsp").forward(request, response);
                 break;
