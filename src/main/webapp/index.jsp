@@ -111,7 +111,7 @@
             </div>
          </div>
 
-         >
+         
          <div class="slider-container">
             <div class="slider-track">
             

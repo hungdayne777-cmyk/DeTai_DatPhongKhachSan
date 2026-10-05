@@ -1,5 +1,43 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <style>
+    .banner_main, 
+    .banner .carousel-inner, 
+    .banner .carousel-item {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+   
+    .banner .carousel-item img {
+        width: 100% !important;
+        max-width: 100% !important;
+        object-fit: fill;
+    }
+
+   
+    .booking_ocline {
+        width: 100% !important;
+        left: 0;
+        right: 0;
+    }
+
+   
+    .glass-booking-container {
+        position: relative;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        max-width: 480px;
+        width: 100%;
+        color: #fff;
+        overflow: hidden;
+    }
     .glass-booking-container {
         position: relative;
         background: rgba(15, 23, 42, 0.45);
@@ -90,7 +128,7 @@
         margin-top: 10px;
     }
 
-    /* --- HIỆU ỨNG NEON ĐỎ KHI HOVER --- */
+ 
     .glass-btn:hover {
         background: rgba(239, 68, 68, 0.25); 
         border-color: #ff4d4d; 
