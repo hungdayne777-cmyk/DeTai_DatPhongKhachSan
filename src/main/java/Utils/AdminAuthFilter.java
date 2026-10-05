@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebFilter(filterName = "AdminAuthFilter", urlPatterns = {"/admin/*"})
+@WebFilter(urlPatterns = {"/*"})
 public class AdminAuthFilter implements Filter {
 
     @Override
@@ -24,28 +24,44 @@ public class AdminAuthFilter implements Filter {
         
         String requestURI = req.getRequestURI();
         
-     
-        if (requestURI.endsWith(".jsp")) {
-            res.sendRedirect(req.getContextPath() + "/view/login.jsp"); 
+      
+        if (requestURI.endsWith("/Trang-chu") 
+                || requestURI.endsWith("/login") 
+                || requestURI.endsWith("/logout") 
+                || requestURI.contains("/assets/") 
+                || requestURI.contains("/css/") 
+                || requestURI.contains("/js/") 
+                || requestURI.contains("/images/")) {
+            chain.doFilter(request, response);
             return;
         }
         
-   
-       HttpSession session = req.getSession(false);
-TaiKhoan acc = (session != null) ? (TaiKhoan) session.getAttribute("acc") : null;
-
-if (acc != null) {
-    if (acc.getRole() == 1) {
-        // Đã đăng nhập và là Admin -> Cho qua
-        chain.doFilter(request, response);
-    } else {
-        // Đã đăng nhập nhưng là Khách (role = 0) -> Không có quyền
-        res.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập trang này!");
-        // Hoặc redirect về trang chủ: res.sendRedirect(req.getContextPath() + "/home");
-    }
-} else {
-    // Chưa đăng nhập -> Về trang login
-    res.sendRedirect(req.getContextPath() + "/view/login.jsp");
-}
+     
+        if (requestURI.endsWith(".jsp")) {
+            res.sendRedirect(req.getContextPath() + "/Trang-chu"); 
+            return;
+        }
+        
+     
+        if (requestURI.contains("/admin/")) {
+            HttpSession session = req.getSession(false);
+            TaiKhoan acc = (session != null) ? (TaiKhoan) session.getAttribute("acc") : null;
+            
+            if (acc != null) {
+                if (acc.getRole() == 1) {
+                   
+                    chain.doFilter(request, response);
+                } else {
+                   
+                    res.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập trang quản trị!");
+                }
+            } else {
+              
+                res.sendRedirect(req.getContextPath() + "/login");
+            }
+        } else {
+       
+            chain.doFilter(request, response);
+        }
     }
 }
