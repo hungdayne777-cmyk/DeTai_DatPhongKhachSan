@@ -79,7 +79,20 @@
     <!-- body -->
     <body class="main-layout">
       
-
+<c:if test="${not empty sessionScope.message}">
+    <div class="container mt-3">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fa fa-check-circle mr-2"></i> ${sessionScope.message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <% 
+        // Xóa message khỏi session sau khi hiển thị để không bị lặp lại khi F5
+        session.removeAttribute("message"); 
+    %>
+</c:if>
         <!-- 1. Nhúng Navbar (Nằm trong thư mục layout) -->
         <jsp:include page="/layout/navbar.jsp" />
 
@@ -354,7 +367,7 @@
 
             <div class="row">
                <div class="col-md-6">
-                  <!-- ĐÃ SỬA: Thêm action trỏ về Servlet /gui-lien-he và method="POST" -->
+                
                   <form id="request" class="main_form" action="${pageContext.request.contextPath}/gui-lien-he" method="POST">
                       <div class="row">
                          <div class="col-md-12">

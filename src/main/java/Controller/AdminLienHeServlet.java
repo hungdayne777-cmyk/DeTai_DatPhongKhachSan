@@ -55,7 +55,7 @@ public class AdminLienHeServlet extends HttpServlet {
             String keyword = request.getParameter("keyword");
             List<LienHe> listLienHe;
             
-            // Nếu có từ khóa tìm kiếm thì gọi hàm search, ngược lại lấy tất cả
+      
             if (keyword != null && !keyword.trim().isEmpty()) {
                 listLienHe = dao.searchLienHe(keyword.trim());
             } else {

@@ -229,4 +229,25 @@ public List<KhachHang> searchKhachHang(String keyword) {
         }
         return list;
     }
+    public String getOrSaveKhachHang(String hoTen, String sdt) {
+        String checkSql = "SELECT MaKH FROM KhachHang WHERE SDT = ?";
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(checkSql)) {
+            ps.setString(1, sdt);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("MaKH"); // Khách cũ -> Lấy MaKH
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Khách mới -> Tạo mã mới và thêm vào bảng KhachHang
+        String newMaKH = generateNextMaKH();
+        KhachHang newKh = new KhachHang(newMaKH, hoTen, sdt, "", ""); // Email và Địa chỉ có thể để trống hoặc cập nhật sau
+        addKhachHang(newKh);
+        
+        return newMaKH;
+    }
 }

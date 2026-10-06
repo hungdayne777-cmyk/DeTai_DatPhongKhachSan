@@ -18,21 +18,18 @@ public class GuiLienHeServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
-      
         String hoTen = request.getParameter("hoTen");
         String email = request.getParameter("email");
         String sdt = request.getParameter("sdt");
         String noiDung = request.getParameter("noiDung");
 
-      
         LienHeDAO dao = new LienHeDAO();
-        
+
         LienHe lh = new LienHe();
         lh.setHoTen(hoTen);
         lh.setEmail(email);
         lh.setSdt(sdt);
         lh.setNoiDung(noiDung);
-
 
         boolean success = dao.addLienHe(lh);
 
@@ -43,14 +40,13 @@ public class GuiLienHeServlet extends HttpServlet {
             session.setAttribute("message", "Gửi liên hệ thất bại. Vui lòng thử lại sau!");
         }
 
-       
-        response.sendRedirect(request.getContextPath() + "/view/contact.jsp");
+        request.getRequestDispatcher("/view/contact.jsp").forward(request, response);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    
-   request.getRequestDispatcher("/view/contact.jsp").forward(request, response);
+
+        request.getRequestDispatcher("/view/contact.jsp").forward(request, response);
     }
 }

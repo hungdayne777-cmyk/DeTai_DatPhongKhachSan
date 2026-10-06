@@ -74,7 +74,7 @@
 
             <div class="row">
                <div class="col-md-6">
-                  <!-- Đã cấu hình action trỏ về Servlet và name chuẩn khớp backend -->
+         
                  <form id="request" class="main_form" action="${pageContext.request.contextPath}/gui-lien-he" method="POST">
                      <div class="row">
                         <div class="col-md-12">
