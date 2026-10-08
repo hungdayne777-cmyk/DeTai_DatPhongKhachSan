@@ -27,6 +27,7 @@ public class AdminAuthFilter implements Filter {
       
         if (requestURI.endsWith("/Trang-chu") 
                 || requestURI.endsWith("/login") 
+                || requestURI.endsWith("/register")
                 || requestURI.endsWith("/logout") 
                 || requestURI.contains("/assets/") 
                 || requestURI.contains("/css/") 

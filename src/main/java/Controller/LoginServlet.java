@@ -29,20 +29,22 @@ public class LoginServlet extends HttpServlet {
 
        
         if (acc == null) {
-        
             request.setAttribute("error", "Tên đăng nhập hoặc mật khẩu không chính xác!");
             request.getRequestDispatcher("view/login.jsp").forward(request, response);
         } else {
-           
-            HttpSession session = request.getSession();
+          
+            HttpSession oldSession = request.getSession(false);
+            if (oldSession != null) {
+                oldSession.invalidate();
+            }
+
+          
+            HttpSession session = request.getSession(true);
             session.setAttribute("acc", acc);
 
-         
             if (acc.getRole() == 1) {
-               
                 response.sendRedirect(request.getContextPath() + "/admin/overview");
             } else {
-               
                 response.sendRedirect(request.getContextPath() + "/index.jsp");
             }
         }
@@ -50,7 +52,7 @@ public class LoginServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Nếu người dùng gõ trực tiếp /login trên URL thì chuyển về trang login.jsp
+      
         request.getRequestDispatcher("view/login.jsp").forward(request, response);
     }
 }

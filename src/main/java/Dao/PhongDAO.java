@@ -90,14 +90,39 @@ public class PhongDAO {
             e.printStackTrace();
         }
     }
-    public void deletePhong(String maPhong) {
-        String query = "DELETE FROM Phong WHERE MaPhong = ?";
-        try (Connection conn = new DBConnection().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, maPhong);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void deletePhong(String maPhong) throws ClassNotFoundException {
+     String checkQuery = "SELECT TinhTrang FROM Phong WHERE MaPhong = ?";
+    String deleteQuery = "DELETE FROM Phong WHERE MaPhong = ?";
+    
+    try (Connection conn = new DBConnection().getConnection()) {
+        
+        // Bước 1: Kiểm tra tình trạng phòng trước khi xóa
+        try (PreparedStatement psCheck = conn.prepareStatement(checkQuery)) {
+            psCheck.setString(1, maPhong);
+            try (ResultSet rs = psCheck.executeQuery()) {
+                if (rs.next()) {
+                    String tinhTrang = rs.getString("TinhTrang");
+                    
+                    // Nếu trạng thái khác "Trống" (không phân biệt hoa thường) thì chặn lại
+                    if (tinhTrang != null && !tinhTrang.trim().equalsIgnoreCase("Trống")) {
+                        throw new RuntimeException("Không thể xóa! Phòng này đang ở trạng thái '" + tinhTrang + "' (chỉ được xóa phòng khi ở trạng thái Trống).");
+                    }
+                } else {
+                    throw new RuntimeException("Không tìm thấy mã phòng cần xóa trong hệ thống!");
+                }
+            }
         }
+        
+        // Bước 2: Nếu phòng đang "Trống", tiến hành thực hiện lệnh xóa
+        try (PreparedStatement psDelete = conn.prepareStatement(deleteQuery)) {
+            psDelete.setString(1, maPhong);
+            psDelete.executeUpdate();
+        }
+        
+    } catch (SQLException e) {
+        e.printStackTrace();
+        throw new RuntimeException("Lỗi cơ sở dữ liệu khi xóa phòng: " + e.getMessage());
+    }
     }
   public String generateNextMaPhong() {
     String nextId = "P01";

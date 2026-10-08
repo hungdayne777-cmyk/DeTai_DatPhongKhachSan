@@ -250,4 +250,52 @@ public List<KhachHang> searchKhachHang(String keyword) {
         
         return newMaKH;
     }
+    public String getOrCreateMaKHByUsername(String username) {
+    String maKH = null;
+    String checkQuery = "SELECT MaKH FROM KhachHang WHERE Username = ?";
+    
+    try (Connection conn = new DBConnection().getConnection();
+         PreparedStatement ps = conn.prepareStatement(checkQuery)) {
+        ps.setString(1, username);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                maKH = rs.getString("MaKH"); // Chỉ lấy MaKH để liên kết tài khoản, KHÔNG UPDATE GHI ĐÈ NỮA
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    // Nếu tài khoản hoàn toàn mới chưa có trong KhachHang thì mới tạo mới
+    if (maKH == null) {
+        maKH = generateNextMaKH();
+        String insertQuery = "INSERT INTO KhachHang (MaKH, HoTen, SDT, Email, DiaChi, Username) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(insertQuery)) {
+            ps.setString(1, maKH);
+            ps.setString(2, username);
+            ps.setString(3, "");
+            ps.setString(4, "");
+            ps.setString(5, "");
+            ps.setString(6, username);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    return maKH;
+}
+    public boolean updateKhachHangNameAndPhone(String maKH, String hoTen, String sdt) {
+    String query = "UPDATE KhachHang SET HoTen = ?, SDT = ? WHERE MaKH = ?";
+    try (Connection conn = new DBConnection().getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+        ps.setString(1, hoTen);
+        ps.setString(2, sdt);
+        ps.setString(3, maKH);
+        return ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+}
 }

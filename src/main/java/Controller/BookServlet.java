@@ -34,7 +34,7 @@ public class BookServlet extends HttpServlet {
 
         String maPhong = request.getParameter("maPhong");
         if (maPhong != null) {
-            maPhong = maPhong.replaceAll("\\s+", ""); // Xóa sạch toàn bộ khoảng trắng thừa kể cả ở giữa
+            maPhong = maPhong.replaceAll("\\s+", "");
         }
 
         PhongDAO phongDAO = new PhongDAO();
@@ -56,6 +56,12 @@ public class BookServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
+        TaiKhoan acc = (session != null) ? (TaiKhoan) session.getAttribute("acc") : null;
+        
+        if (acc == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
 
         try {
             String maPhong = request.getParameter("maPhong");
@@ -71,8 +77,14 @@ public class BookServlet extends HttpServlet {
             String phuongThucThanhToan = request.getParameter("phuongThucThanhToan");
 
             KhachHangDAO khDAO = new KhachHangDAO();
-            String maKH = khDAO.getOrSaveKhachHang(hoTen, sdt);
             
+            
+            // để đơn hàng chắc chắn hiển thị trong trang "Phòng của tôi" của bạn.
+            String maKH = khDAO.getOrCreateMaKHByUsername(acc.getUsername());
+            
+        
+             khDAO.updateKhachHangNameAndPhone(maKH, hoTen, sdt);
+
             if (maKH == null) {
                 session.setAttribute("errorMessage", "Không thể xử lý thông tin khách hàng!");
                 response.sendRedirect(request.getContextPath() + "/book?maPhong=" + maPhong);
@@ -107,7 +119,7 @@ public class BookServlet extends HttpServlet {
             DatPhong dp = new DatPhong();
             dp.setMaDP(maDP);
             dp.setMaPhong(maPhong);
-            dp.setMaKH(maKH); 
+            dp.setMaKH(maKH); // Gắn đúng MaKH của tài khoản đang đăng nhập
             dp.setNgayDat(LocalDateTime.now());
             dp.setNgayNhan(ngayNhanDate.atStartOfDay());
             dp.setNgayTra(ngayTraDate.atStartOfDay());
@@ -116,13 +128,13 @@ public class BookServlet extends HttpServlet {
             dp.setTienCoc(tienCoc); 
             
             dp.setTrangThai("Chờ xác nhận");      
-            dp.setTrangThaiCoc("Đã cọc");          
+            dp.setTrangThaiCoc("Đã cọc");         
 
             boolean isInserted = dpDAO.insertDatPhong(dp);
 
             if (isInserted) {
                 session.setAttribute("message", "Đặt phòng thành công! Mã đơn của bạn là: " + maDP);
-                response.sendRedirect(request.getContextPath() + "/Trang-chu");
+                response.sendRedirect(request.getContextPath() + "/my-booking"); // Chuyển thẳng tới trang lịch sử xem luôn cho trực quan
             } else {
                 session.setAttribute("errorMessage", "Lỗi hệ thống khi lưu đơn đặt phòng!");
                 response.sendRedirect(request.getContextPath() + "/book?maPhong=" + maPhong);

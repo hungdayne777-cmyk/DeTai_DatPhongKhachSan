@@ -474,4 +474,100 @@ public int getTotalSearchDatPhong(String keyword, String trangThai) {
         }
         return list;
     }
+    public List<DatPhong> getDatPhongByMaKH(String maKH) {
+    List<DatPhong> list = new ArrayList<>();
+    String query = "SELECT dp.*, kh.HoTen, p.TenPhong " +
+                   "FROM DatPhong dp " +
+                   "LEFT JOIN KhachHang kh ON dp.MaKH = kh.MaKH " +
+                   "LEFT JOIN Phong p ON dp.MaPhong = p.MaPhong " +
+                   "WHERE dp.MaKH = ? " +
+                   "ORDER BY dp.NgayDat DESC";
+    
+    try (Connection conn = new DBConnection().getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+        
+        ps.setString(1, maKH);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                DatPhong dp = mapResultSetToDatPhong(rs);
+                try { dp.setTenKH(rs.getString("HoTen")); } catch (Exception ignored) {}
+                try { dp.setSoPhong(rs.getString("TenPhong")); } catch (Exception ignored) {}
+                list.add(dp);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+    public List<DatPhong> getDatPhongByUsername(String username) {
+    List<DatPhong> list = new java.util.ArrayList<>();
+    // Thêm JOIN với bảng Phong để lấy TenPhong
+    String query = "SELECT dp.*, p.TenPhong FROM DatPhong dp " +
+                   "JOIN KhachHang kh ON dp.MaKH = kh.MaKH " +
+                   "LEFT JOIN Phong p ON dp.MaPhong = p.MaPhong " +
+                   "WHERE kh.Username = ? " +
+                   "ORDER BY dp.NgayDat DESC";
+    
+    try (Connection conn = new DBConnection().getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+        ps.setString(1, username);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                DatPhong dp = new DatPhong();
+                dp.setMaDP(rs.getString("MaDP"));
+                dp.setMaPhong(rs.getString("MaPhong"));
+                dp.setMaKH(rs.getString("MaKH"));
+                dp.setTenPhong(rs.getString("TenPhong")); // Lấy tên phòng ở đây
+                
+                if (rs.getTimestamp("NgayDat") != null) {
+                    dp.setNgayDat(rs.getTimestamp("NgayDat").toLocalDateTime());
+                }
+                if (rs.getTimestamp("NgayNhan") != null) {
+                    dp.setNgayNhan(rs.getTimestamp("NgayNhan").toLocalDateTime());
+                }
+                if (rs.getTimestamp("NgayTra") != null) {
+                    dp.setNgayTra(rs.getTimestamp("NgayTra").toLocalDateTime());
+                }
+                
+                dp.setTrangThai(rs.getString("TrangThai"));
+                dp.setSoLuong(rs.getInt("SoLuong"));
+                dp.setTongTien(rs.getDouble("TongTien"));
+                dp.setTienCoc(rs.getDouble("TienCoc"));
+                dp.setTrangThaiCoc(rs.getString("TrangThaiCoc"));
+                
+                list.add(dp);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+    public boolean updateTrangThaiDatPhong(String maDP, String trangThai) {
+    String query = "UPDATE DatPhong SET TrangThai = ? WHERE MaDP = ?";
+    try (Connection conn = new DBConnection().getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+        ps.setString(1, trangThai);
+        ps.setString(2, maDP);
+        return ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+    }
+   
+public boolean updateTrangThaiVaCoc(String maDP, String trangThai, String trangThaiCoc) {
+    String query = "UPDATE DatPhong SET TrangThai = ?, TrangThaiCoc = ? WHERE MaDP = ?";
+    try (Connection conn = new DBConnection().getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+        ps.setString(1, trangThai);
+        ps.setString(2, trangThaiCoc);
+        ps.setString(3, maDP);
+        return ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+}
 }

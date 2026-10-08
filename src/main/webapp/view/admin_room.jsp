@@ -17,7 +17,7 @@
         <!-- Hiển thị thông báo thành công từ Session trong trang Quản trị -->
 
         <c:if test="${not empty sessionScope.message}">
-
+<c:set var="isError" value="${sessionScope.message.contains('Không thể') || sessionScope.message.contains('thất bại')}" />
             <c:set var="isError" value="${sessionScope.message.contains('Không thể') || sessionScope.message.contains('thất bại')}" />
 
             <div class="alert ${isError ? 'alert-danger' : 'alert-success'} alert-dismissible fade show shadow-sm mb-4" role="alert">

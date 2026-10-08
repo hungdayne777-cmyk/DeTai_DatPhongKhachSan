@@ -3,6 +3,7 @@ package Model;
 import java.time.LocalDateTime;
 
 public class DatPhong {
+
     private String maDP;
     private String maPhong;
     private String soPhong; // Số phòng hiển thị lên bảng
@@ -16,46 +17,122 @@ public class DatPhong {
     private double tongTien;
     private double tienCoc;
     private String trangThaiCoc;
+    private String tenPhong;
 
-    public DatPhong() {}
+    public DatPhong() {
+    }
 
     // Getters và Setters đầy đủ
-    public String getMaDP() { return maDP; }
-    public void setMaDP(String maDP) { this.maDP = maDP; }
+    public String getMaDP() {
+        return maDP;
+    }
 
-    public String getMaPhong() { return maPhong; }
-    public void setMaPhong(String maPhong) { this.maPhong = maPhong; }
+    public void setMaDP(String maDP) {
+        this.maDP = maDP;
+    }
 
-    public String getSoPhong() { return soPhong; }
-    public void setSoPhong(String soPhong) { this.soPhong = soPhong; }
+    public String getMaPhong() {
+        return maPhong;
+    }
 
-    public String getMaKH() { return maKH; }
-    public void setMaKH(String maKH) { this.maKH = maKH; }
+    public void setMaPhong(String maPhong) {
+        this.maPhong = maPhong;
+    }
 
-    public String getTenKH() { return tenKH; }
-    public void setTenKH(String tenKH) { this.tenKH = tenKH; }
+    public String getSoPhong() {
+        return soPhong;
+    }
 
-    public LocalDateTime getNgayDat() { return ngayDat; }
-    public void setNgayDat(LocalDateTime ngayDat) { this.ngayDat = ngayDat; }
+    public void setSoPhong(String soPhong) {
+        this.soPhong = soPhong;
+    }
 
-    public LocalDateTime getNgayNhan() { return ngayNhan; }
-    public void setNgayNhan(LocalDateTime ngayNhan) { this.ngayNhan = ngayNhan; }
+    public String getMaKH() {
+        return maKH;
+    }
 
-    public LocalDateTime getNgayTra() { return ngayTra; }
-    public void setNgayTra(LocalDateTime ngayTra) { this.ngayTra = ngayTra; }
+    public void setMaKH(String maKH) {
+        this.maKH = maKH;
+    }
 
-    public String getTrangThai() { return trangThai; }
-    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+    public String getTenKH() {
+        return tenKH;
+    }
 
-    public int getSoLuong() { return soLuong; }
-    public void setSoLuong(int soLuong) { this.soLuong = soLuong; }
+    public void setTenKH(String tenKH) {
+        this.tenKH = tenKH;
+    }
 
-    public double getTongTien() { return tongTien; }
-    public void setTongTien(double tongTien) { this.tongTien = tongTien; }
+    public LocalDateTime getNgayDat() {
+        return ngayDat;
+    }
 
-    public double getTienCoc() { return tienCoc; }
-    public void setTienCoc(double tienCoc) { this.tienCoc = tienCoc; }
+    public void setNgayDat(LocalDateTime ngayDat) {
+        this.ngayDat = ngayDat;
+    }
 
-    public String getTrangThaiCoc() { return trangThaiCoc; }
-    public void setTrangThaiCoc(String trangThaiCoc) { this.trangThaiCoc = trangThaiCoc; }
+    public LocalDateTime getNgayNhan() {
+        return ngayNhan;
+    }
+
+    public void setNgayNhan(LocalDateTime ngayNhan) {
+        this.ngayNhan = ngayNhan;
+    }
+
+    public LocalDateTime getNgayTra() {
+        return ngayTra;
+    }
+
+    public void setNgayTra(LocalDateTime ngayTra) {
+        this.ngayTra = ngayTra;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    public int getSoLuong() {
+        return soLuong;
+    }
+
+    public void setSoLuong(int soLuong) {
+        this.soLuong = soLuong;
+    }
+
+    public double getTongTien() {
+        return tongTien;
+    }
+
+    public void setTongTien(double tongTien) {
+        this.tongTien = tongTien;
+    }
+
+    public double getTienCoc() {
+        return tienCoc;
+    }
+
+    public void setTienCoc(double tienCoc) {
+        this.tienCoc = tienCoc;
+    }
+
+    public String getTrangThaiCoc() {
+        return trangThaiCoc;
+    }
+
+    public void setTrangThaiCoc(String trangThaiCoc) {
+        this.trangThaiCoc = trangThaiCoc;
+    }
+    // Getter và Setter
+
+    public String getTenPhong() {
+        return tenPhong;
+    }
+
+    public void setTenPhong(String tenPhong) {
+        this.tenPhong = tenPhong;
+    }
 }

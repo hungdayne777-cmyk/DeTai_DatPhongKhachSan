@@ -40,7 +40,7 @@ public class TaiKhoanDAO {
         return null; 
     }
 
-    // 1. Lấy danh sách toàn bộ tài khoản cho trang Quản Lý Admin
+  
     public List<TaiKhoan> getAllAccounts() {
         List<TaiKhoan> list = new ArrayList<>();
         String query = "SELECT * FROM TaiKhoan";
@@ -65,7 +65,7 @@ public class TaiKhoanDAO {
         return list;
     }
 
-    // 2. Thêm tài khoản mới
+
     public void insertAccount(String username, String password, int role) {
         String query = "INSERT INTO TaiKhoan (username, password, role) VALUES (?, ?, ?)";
         try {
@@ -98,4 +98,41 @@ public class TaiKhoanDAO {
             try { if (conn != null) conn.close(); } catch (Exception e) {}
         }
     }
+
+public boolean checkAccountExist(String username) {
+    String query = "SELECT * FROM TaiKhoan WHERE username = ?";
+    try {
+        conn = Utils.DBConnection.getConnection();
+        ps = conn.prepareStatement(query);
+        ps.setString(1, username);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            return true; // Đã tồn tại
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try { if (rs != null) rs.close(); } catch (Exception e) {}
+        try { if (ps != null) ps.close(); } catch (Exception e) {}
+        try { if (conn != null) conn.close(); } catch (Exception e) {}
+    }
+    return false; // Chưa tồn tại
+}
+
+
+public void register(String username, String password) {
+    String query = "INSERT INTO TaiKhoan (username, password, role) VALUES (?, ?, 0)";
+    try {
+        conn = Utils.DBConnection.getConnection();
+        ps = conn.prepareStatement(query);
+        ps.setString(1, username);
+        ps.setString(2, password);
+        ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try { if (ps != null) ps.close(); } catch (Exception e) {}
+        try { if (conn != null) conn.close(); } catch (Exception e) {}
+    }
+}
 }

@@ -35,42 +35,48 @@ public class AdminDatPhongServlet extends HttpServlet {
         try {
             switch (action) {
                 case "list":
-                   dao.checkAndUpdateExpiredBookings();
-                
-                String keyword = request.getParameter("keyword");
-                String status = request.getParameter("status");
-                
-                // Thiết lập phân trang
-                int currentPage = 1;
-                int recordsPerPage = 5; // Số dòng trên 1 trang
-                
-                String pageStr = request.getParameter("page");
-                if (pageStr != null && !pageStr.trim().isEmpty()) {
-                    try {
-                        currentPage = Integer.parseInt(pageStr);
-                        if (currentPage < 1) currentPage = 1;
-                    } catch (NumberFormatException e) {
-                        currentPage = 1;
+                    dao.checkAndUpdateExpiredBookings();
+
+                    String keyword = request.getParameter("keyword");
+                    String status = request.getParameter("status");
+
+                    // Thiết lập phân trang
+                    int currentPage = 1;
+                    int recordsPerPage = 5; // Số dòng trên 1 trang
+
+                    String pageStr = request.getParameter("page");
+                    if (pageStr != null && !pageStr.trim().isEmpty()) {
+                        try {
+                            currentPage = Integer.parseInt(pageStr);
+                            if (currentPage < 1) {
+                                currentPage = 1;
+                            }
+                        } catch (NumberFormatException e) {
+                            currentPage = 1;
+                        }
                     }
-                }
-                
-                // Lấy tổng số bản ghi theo bộ lọc
-                int totalRecords = dao.getTotalSearchDatPhong(keyword, status);
-                int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
-                if (totalPages == 0) totalPages = 1;
-                if (currentPage > totalPages) currentPage = totalPages;
-                
-                // Lấy danh sách theo trang hiện tại
-                List<DatPhong> list = dao.searchDatPhongPaging(keyword, status, currentPage, recordsPerPage);
 
-                request.setAttribute("keyword", keyword);
-                request.setAttribute("status", status);
-                request.setAttribute("datPhongList", list);
-                request.setAttribute("currentPage", currentPage);
-                request.setAttribute("totalPages", totalPages);
+                    // Lấy tổng số bản ghi theo bộ lọc
+                    int totalRecords = dao.getTotalSearchDatPhong(keyword, status);
+                    int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+                    if (totalPages == 0) {
+                        totalPages = 1;
+                    }
+                    if (currentPage > totalPages) {
+                        currentPage = totalPages;
+                    }
 
-                request.setAttribute("contentPage", "admindatphong.jsp");
-                request.getRequestDispatcher("../admin.jsp").forward(request, response);
+                    // Lấy danh sách theo trang hiện tại
+                    List<DatPhong> list = dao.searchDatPhongPaging(keyword, status, currentPage, recordsPerPage);
+
+                    request.setAttribute("keyword", keyword);
+                    request.setAttribute("status", status);
+                    request.setAttribute("datPhongList", list);
+                    request.setAttribute("currentPage", currentPage);
+                    request.setAttribute("totalPages", totalPages);
+
+                    request.setAttribute("contentPage", "admindatphong.jsp");
+                    request.getRequestDispatcher("../admin.jsp").forward(request, response);
                     break;
 
                 case "form-add":
@@ -222,7 +228,24 @@ public class AdminDatPhongServlet extends HttpServlet {
                             return;
                         }
                     }
+                    String updTrangThaiCoc = request.getParameter("trangThaiCoc"); // Lấy giá trị trạng thái cọc từ form gửi lên (nếu có)
 
+                    oldTrangThai = (oldTrangThai != null) ? oldTrangThai.trim() : "";
+                    String updTrangThaiTrim = (updTrangThai != null) ? updTrangThai.trim() : "";
+
+
+                    System.out.println("=== DEBUG TRANG THAI ===");
+                    System.out.println("Trạng thái cũ trong DB: [" + oldTrangThai + "]");
+                    System.out.println("Trạng thái mới từ Form: [" + updTrangThaiTrim + "]");
+
+// Sử dụng biến đã trim để so sánh an toàn tuyệt đối
+                    if ("Đã hủy".equals(updTrangThaiTrim)) {
+                        if ("Chờ xác nhận".equals(oldTrangThai)) {
+                            updTrangThaiCoc = "Đã hoàn tiền";
+                        } else if ("Đã xác nhận".equals(oldTrangThai)) {
+                            updTrangThaiCoc = "Phạt Cọc"; // Phải khớp chữ 'C' viết hoa với file JSP
+                        }
+                    }
                     LocalDateTime updNgayNhanLDT = parseDateTime(request.getParameter("ngayNhan"));
                     LocalDateTime updNgayTraLDT = parseDateTime(request.getParameter("ngayTra"));
 
@@ -244,8 +267,6 @@ public class AdminDatPhongServlet extends HttpServlet {
 
                     double updTongTien = roomPrice * soNgayThueUpd;
                     double updTienCoc = updTongTien * 0.3; // 30% tiền cọc
-
-                    String updTrangThaiCoc = request.getParameter("trangThaiCoc");
 
                     DatPhong updDp = new DatPhong();
                     updDp.setMaDP(updMaDP);

@@ -181,21 +181,27 @@ public class AdminPhongServlet extends HttpServlet {
 
             case "delete":
                 String maPhongDel = request.getParameter("maPhong");
-
-                // 1. Lấy thông tin phòng để kiểm tra trạng thái trước khi xóa
-                // (Đảm bảo dao của bạn có hàm getPhongById hoặc tên tương tự để lấy thông tin phòng)
-                Phong p = dao.getPhongById(maPhongDel);
-
-                if (p != null && "Đang thuê".equals(p.getTinhTrang())) {
-                    // 2. Nếu phòng đang có người thuê -> Thông báo lỗi, không xóa
-                    request.getSession().setAttribute("message", "Không thể xóa! Phòng này đang có khách thuê.");
-                } else {
-                    // 3. Nếu phòng trống hoặc trạng thái khác -> Tiến hành xóa bình thường
-                    dao.deletePhong(maPhongDel);
-                    request.getSession().setAttribute("message", "Xóa phòng thành công!");
+                try {
+                    Phong p = dao.getPhongById(maPhongDel);
+                    if (p != null) {
+                        // Lấy trạng thái và loại bỏ khoảng trắng thừa nếu có
+                        String tinhTrang = p.getTinhTrang() != null ? p.getTinhTrang().trim() : "";
+                        
+                        // Kiểm tra nếu không phải trạng thái "Trống" thì chặn lại
+                        if (!tinhTrang.equalsIgnoreCase("Trống")) {
+                            request.getSession().setAttribute("message", "Không thể xóa! Phòng này đang ở trạng thái '" + tinhTrang + "'.");
+                        } else {
+                            // Tiến hành xóa (Nếu vướng khóa ngoại DB sẽ ném lỗi sang catch)
+                            dao.deletePhong(maPhongDel);
+                            request.getSession().setAttribute("message", "Xóa phòng thành công!");
+                        }
+                    } else {
+                        request.getSession().setAttribute("message", "Không tìm thấy phòng cần xóa!");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    request.getSession().setAttribute("message", "Không thể xóa! Phòng này đã có lịch sử đặt phòng (vướng dữ liệu liên quan).");
                 }
-
-            default:
                 response.sendRedirect("room?action=list");
                 break;
         }
