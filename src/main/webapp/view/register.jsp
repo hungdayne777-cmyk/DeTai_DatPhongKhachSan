@@ -1,4 +1,3 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,16 +7,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Đăng ký tài khoản - Quản lý Khách Sạn</title>
         
-        <!-- bootstrap css -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css">
-        <!-- style css -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
-        <!-- Responsive-->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/responsive.css">
         <link rel="icon" href="${pageContext.request.contextPath}/images/fevicon.png" type="image/gif" />
         <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
 
-        <!-- CSS TÙY CHỈNH HIỆU ỨNG GLASSMORPHISM -->
         <style>
             body.main-layout.inner_page {
                 background: url('${pageContext.request.contextPath}/images/hotel-bg.jpg') no-repeat center center fixed !important;
@@ -26,7 +21,6 @@
                 min-height: 100vh;
                 overflow-x: hidden;
             }
-
             body.main-layout.inner_page::before {
                 content: "";
                 position: absolute;
@@ -34,9 +28,7 @@
                 background: rgba(0, 0, 0, 0.45);
                 z-index: -1;
             }
-
             .back_re { display: none !important; }
-
             .glass-login-container {
                 min-height: 85vh;
                 display: flex;
@@ -44,11 +36,10 @@
                 justify-content: center;
                 padding: 40px 0;
             }
-
             .glass-card {
                 position: relative;
                 width: 100%;
-                max-width: 420px;
+                max-width: 480px;
                 padding: 35px;
                 background: rgba(255, 255, 255, 0.05); 
                 backdrop-filter: blur(16px);            
@@ -59,7 +50,6 @@
                 color: #fff;
                 z-index: 2;
             }
-
             .glow-circle-1 {
                 position: absolute;
                 top: -30px; right: -20px;
@@ -69,7 +59,6 @@
                 filter: blur(40px);
                 z-index: -1;
             }
-
             .glow-circle-2 {
                 position: absolute;
                 bottom: -30px; left: -20px;
@@ -79,26 +68,22 @@
                 filter: blur(40px);
                 z-index: -1;
             }
-
             .glass-card .contactus {
                 background: rgba(255, 255, 255, 0.08) !important;
                 border: 1px solid rgba(255, 255, 255, 0.2) !important;
                 border-radius: 10px !important;
                 color: #fff !important;
-                padding: 12px 18px !important;
-                margin-bottom: 15px !important;
+                padding: 10px 15px !important;
+                margin-bottom: 12px !important;
                 width: 100% !important;
                 font-size: 14px !important;
             }
-
             .glass-card .contactus::placeholder { color: rgba(255, 255, 255, 0.5) !important; }
-
             .glass-card .contactus:focus {
                 background: rgba(255, 255, 255, 0.15) !important;
                 border-color: rgba(255, 255, 255, 0.5) !important;
                 box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
             }
-
             .glass-card .send_btn {
                 background: rgba(255, 255, 255, 0.2) !important;
                 border: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -113,12 +98,10 @@
                 font-size: 16px !important;
                 transition: all 0.3s ease;
             }
-
             .glass-card .send_btn:hover {
                 background: rgba(255, 255, 255, 0.35) !important;
                 box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
             }
-
             .glass-card h3 { color: #fff !important; font-weight: 700 !important; font-size: 24px !important; }
             .glass-card p { color: rgba(255, 255, 255, 0.7) !important; font-size: 14px; }
             .login-link { color: #ffb74d; text-decoration: none; font-weight: 500; }
@@ -127,23 +110,12 @@
     </head>
     
     <body class="main-layout inner_page">
-        <!-- loader -->
         <div class="loader_bg">
             <div class="loader"><img src="${pageContext.request.contextPath}/images/loading.gif" alt="#"/></div>
         </div>
 
-        <!-- NAVBAR -->
         <jsp:include page="/layout/navbar.jsp" />
-<%
-    String mess = (String) request.getAttribute("mess");
-    if (mess != null) {
-%>
-    <div class="alert alert-warning" role="alert" style="color: red; font-weight: bold;">
-        <%= mess %>
-    </div>
-<%
-    }
-%>
+
         <div class="container glass-login-container">
             <div class="glass-card">
                 <div class="glow-circle-1"></div>
@@ -153,10 +125,9 @@
                     <div class="row">
                         <div class="col-md-12 text-center mb-3">
                             <h3>Đăng Ký Tài Khoản</h3>
-                            <p>Tạo tài khoản khách mới</p>
+                            <p>Tạo tài khoản khách mới và hồ sơ cá nhân</p>
                         </div>
 
-                        <!-- Hiển thị lỗi -->
                         <% if (request.getAttribute("error") != null) { %>
                         <div class="col-md-12">
                             <div class="alert alert-danger py-2 bg-danger text-white border-0 rounded-3 mb-3 text-center" role="alert" style="font-size: 13px;">
@@ -168,14 +139,26 @@
                         <div class="col-md-12">
                             <input class="contactus" placeholder="Tên đăng nhập" type="text" name="username" required autocomplete="off"> 
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <input class="contactus" placeholder="Mật khẩu" type="password" name="password" required>         
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <input class="contactus" placeholder="Nhập lại mật khẩu" type="password" name="re_password" required>         
                         </div>
+                        <div class="col-md-12">
+                            <input class="contactus" placeholder="Họ và tên" type="text" name="hoTen" required autocomplete="off"> 
+                        </div>
+                        <div class="col-md-12">
+                            <input class="contactus" placeholder="Số điện thoại" type="text" name="sdt" required autocomplete="off"> 
+                        </div>
+                        <div class="col-md-12">
+                            <input class="contactus" placeholder="Email" type="email" name="email" required autocomplete="off"> 
+                        </div>
+                        <div class="col-md-12">
+                            <input class="contactus" placeholder="Địa chỉ" type="text" name="diachi" required autocomplete="off"> 
+                        </div>
                         
-                        <div class="col-md-12 text-center mb-3">
+                        <div class="col-md-12 text-center mb-3 mt-2">
                             <button class="send_btn" type="submit">Đăng Ký</button>
                         </div>
 
@@ -187,13 +170,10 @@
             </div>
         </div>
 
-        <!-- FOOTER -->
         <jsp:include page="/layout/footer.jsp" />
 
-        <!-- Javascript files-->
         <script src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/js/jquery-3.0.0.min.js"></script>
         <script src="${pageContext.request.contextPath}/js/jquery.mCustomScrollbar.concat.min.js"></script>
         <script src="${pageContext.request.contextPath}/js/custom.js"></script>
     </body>

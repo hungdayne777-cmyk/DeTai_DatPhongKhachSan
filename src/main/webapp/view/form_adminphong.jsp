@@ -37,7 +37,7 @@
             <!-- COMBOBOX: Loại Phòng -->
             <div class="mb-3">
                 <label class="form-label fw-bold">Loại Phòng:</label>
-                <select class="form-select" name="maLoai" required>
+                <select class="form-control form-select" name="maLoai" required>
                     <option value="">-- Chọn loại phòng --</option>
                     <c:forEach items="${listLoaiPhong}" var="lp">
                         <option value="${lp.maLoai}" ${phong.maLoai == lp.maLoai ? 'selected' : ''}>
@@ -56,7 +56,7 @@
             <!-- COMBOBOX: Tình Trạng -->
             <div class="mb-3">
                 <label class="form-label fw-bold">Tình Trạng:</label>
-                <select class="form-select" name="tinhTrang" required>
+                <select class="form-control form-select" name="tinhTrang" required>
                     <option value="Trống" ${phong.tinhTrang == 'Trống' ? 'selected' : ''}>Trống</option>
                     <option value="Đang thuê" ${phong.tinhTrang == 'Đang thuê' ? 'selected' : ''}>Đang thuê</option>
                 </select>

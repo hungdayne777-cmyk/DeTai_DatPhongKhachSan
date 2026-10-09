@@ -243,7 +243,7 @@ public List<KhachHang> searchKhachHang(String keyword) {
             e.printStackTrace();
         }
 
-        // Khách mới -> Tạo mã mới và thêm vào bảng KhachHang
+    
         String newMaKH = generateNextMaKH();
         KhachHang newKh = new KhachHang(newMaKH, hoTen, sdt, "", ""); // Email và Địa chỉ có thể để trống hoặc cập nhật sau
         addKhachHang(newKh);
@@ -259,14 +259,14 @@ public List<KhachHang> searchKhachHang(String keyword) {
         ps.setString(1, username);
         try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                maKH = rs.getString("MaKH"); // Chỉ lấy MaKH để liên kết tài khoản, KHÔNG UPDATE GHI ĐÈ NỮA
+                maKH = rs.getString("MaKH");
             }
         }
     } catch (Exception e) {
         e.printStackTrace();
     }
     
-    // Nếu tài khoản hoàn toàn mới chưa có trong KhachHang thì mới tạo mới
+ 
     if (maKH == null) {
         maKH = generateNextMaKH();
         String insertQuery = "INSERT INTO KhachHang (MaKH, HoTen, SDT, Email, DiaChi, Username) VALUES (?, ?, ?, ?, ?, ?)";
@@ -298,4 +298,21 @@ public List<KhachHang> searchKhachHang(String keyword) {
     }
     return false;
 }
+    
+    public boolean insertKhachHang(String maKH, String hoTen, String sdt, String email, String diachi, String username) {
+        String query = "INSERT INTO KhachHang (MaKH, HoTen, SDT, Email, DiaChi, Username) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, maKH);
+            ps.setString(2, hoTen);
+            ps.setString(3, sdt);
+            ps.setString(4, email);
+            ps.setString(5, diachi);
+            ps.setString(6, username);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

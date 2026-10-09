@@ -69,7 +69,7 @@
                     </div>
                 </div>
                 <div class="row">
-              
+
                     <c:forEach items="${roomList}" var="r">
                         <div class="col-lg-4 col-md-6 mb-4 d-flex">
                             <!-- Thẻ Card phòng -->
@@ -84,7 +84,7 @@
                                 <div class="card-body d-flex flex-column text-center p-3">
                                     <h5 class="card-title font-weight-bold text-dark mb-2">${r.tenPhong}</h5>
 
-                               
+
                                     <p class="card-text text-muted small text-truncate mb-3">
                                         ${r.moTa}
                                     </p>
@@ -109,11 +109,26 @@
                                         </button>
 
                                         <!-- Nút Đặt Ngay -->
+                                        <c:choose>
+                                    <%-- Trường hợp 1: Phòng TRỐNG -> Hiện nút "Đặt Ngay" màu đỏ --%>
+                                    <c:when test="${r.tinhTrang eq 'Trống'}">
                                         <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
                                            class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
                                             Đặt Ngay
                                         </a>
-                                    </div>
+                                    </c:when>
+
+                                    <%-- Trường hợp 2: Phòng ĐANG THUÊ / ĐÃ ĐẶT / BẢO TRÌ -> Hiện nút "Hết Phòng" bị khóa --%>
+                                    <c:otherwise>
+                                        <button type="button" 
+                                                class="btn btn-secondary btn-sm font-weight-bold" 
+                                                disabled 
+                                                style="width: 48%; opacity: 0.65; cursor: not-allowed;" 
+                                                title="Phòng này hiện không khả dụng để đặt!">
+                                            Hết Phòng
+                                        </button>
+                                    </c:otherwise>
+                                </c:choose>                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -122,10 +137,10 @@
                         <div id="customModal_${r.maPhong}" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center;">
                             <div style="background: #fff; width: 90%; max-width: 700px; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
 
-                               <div style="background: #121212; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
-    <h5 style="margin: 0; font-weight: bold; font-size: 18px; color: #fff;"><i class="fa fa-door-open mr-2"></i> Chi Tiết: ${r.tenPhong}</h5>
-    <button type="button" onclick="closeRoomModal('${r.maPhong}')" style="background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; line-height: 1;">&times;</button>
-</div>
+                                <div style="background: #121212; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+                                    <h5 style="margin: 0; font-weight: bold; font-size: 18px; color: #fff;"><i class="fa fa-door-open mr-2"></i> Chi Tiết: ${r.tenPhong}</h5>
+                                    <button type="button" onclick="closeRoomModal('${r.maPhong}')" style="background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; line-height: 1;">&times;</button>
+                                </div>
                                 <!-- Modal Body -->
                                 <div style="padding: 20px; max-height: 70vh; overflow-y: auto;">
                                     <div class="row align-items-center">
@@ -170,10 +185,26 @@
 
                                 <!-- Modal Footer (Đổi nút bấm sang tone đen trắng tối giản) -->
                                 <div style="background: #f8f9fa; padding: 12px 20px; text-align: right; border-top: 1px solid #dee2e6;">
-                                    <button type="button" class="btn btn-outline-dark px-4 font-weight-bold btn-sm mr-2" onclick="closeRoomModal('${r.maPhong}')">Đóng</button>
-                                    <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" class="btn btn-danger px-4 font-weight-bold btn-sm" style="background-color: #ff3333; border-color: #121212;">
+                                    <c:choose>
+                                <%-- Trường hợp 1: Phòng TRỐNG -> Hiện nút "Đặt Ngay" màu đỏ --%>
+                                <c:when test="${r.tinhTrang eq 'Trống'}">
+                                    <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
+                                       class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
                                         Đặt Ngay
                                     </a>
+                                </c:when>
+
+                                <%-- Trường hợp 2: Phòng ĐANG THUÊ / ĐÃ ĐẶT / BẢO TRÌ -> Hiện nút "Hết Phòng" bị khóa --%>
+                                <c:otherwise>
+                                    <button type="button" 
+                                            class="btn btn-secondary btn-sm font-weight-bold" 
+                                            disabled 
+                                            style="width: 48%; opacity: 0.65; cursor: not-allowed;" 
+                                            title="Phòng này hiện không khả dụng để đặt!">
+                                        Hết Phòng
+                                    </button>
+                                </c:otherwise>
+                            </c:choose>
                                 </div>
                             </div>
                         </div>

@@ -52,7 +52,7 @@
                     <label class="form-label fw-bold text-secondary small text-uppercase mb-1">
                         <i class="fas fa-filter me-1 text-success"></i> Tình Trạng
                     </label>
-                    <select class="form-select" name="status">
+                    <select class="form-control form-select" name="status">
                         <option value="">-- Tất cả tình trạng --</option>
                         <option value="Trống" ${param.status == 'Trống' ? 'selected' : ''}>Trống</option>
                         <option value="Đang thuê" ${param.status == 'Đang thuê' ? 'selected' : ''}>Đang thuê</option>

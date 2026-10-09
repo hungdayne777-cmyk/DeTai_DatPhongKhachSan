@@ -79,14 +79,24 @@
                                 <c:if test="${not empty sessionScope.acc}">
                                     
                                     <!-- CHỈ HIỂN THỊ NẾU KHÔNG PHẢI ADMIN -->
-                                    <c:if test="${sessionScope.acc.role != 1}">
+                                    <c:choose>
+                                        <c:when test="${sessionScope.acc.role != 1}">
                                         <li class="nav-item">
                                             <a class="nav-link" href="${pageContext.request.contextPath}/my-booking">
                                                 <i class="fa fa-bookmark" aria-hidden="true"></i> PHÒNG CỦA TÔI
                                             </a>
                                         </li>
-                                    </c:if>
-
+                                        </c:when>
+                                        <c:otherwise>
+                                             <li class="nav-item">
+                                            <a class="nav-link" href="${pageContext.request.contextPath}/admin/overview">
+                                                <i class="fa fa-bookmark" aria-hidden="true"></i> QUẢN TRỊ
+                                            </a>
+                                        </li>
+                                        </c:otherwise>
+                                    </c:choose> 
+                                   
+                                   
                                     <li class="nav-item">
                                         <a class="nav-link text-danger fw-bold" href="${pageContext.request.contextPath}/logout">
                                             <i class="fa fa-sign-out-alt me-1"></i> ĐĂNG XUẤT (${sessionScope.acc.username})

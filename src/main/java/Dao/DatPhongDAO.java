@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class DatPhongDAO {
 
-    // 1. Lấy toàn bộ danh sách (có JOIN để lấy Tên Khách Hàng và Tên Phòng)
+   
     public List<DatPhong> getAllDatPhong() {
         return searchDatPhong(null, null);
     }
@@ -45,86 +45,87 @@ public class DatPhongDAO {
         return null;
     }
 
-    // 3. Thêm mới một đặt phòng
-    public boolean insertDatPhong(DatPhong dp) {
-      String query = "INSERT INTO DatPhong (MaDP, MaPhong, MaKH, NgayDat, NgayNhan, NgayTra, TrangThai, SoLuong, TongTien, TienCoc, TrangThaiCoc) " +
-                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    try (Connection conn = new DBConnection().getConnection();
-         PreparedStatement ps = conn.prepareStatement(query)) {
-        
-        ps.setString(1, dp.getMaDP());
-        ps.setString(2, dp.getMaPhong());
-        ps.setString(3, dp.getMaKH());
-        ps.setTimestamp(4, dp.getNgayDat() != null ? Timestamp.valueOf(dp.getNgayDat()) : new Timestamp(System.currentTimeMillis()));
-        ps.setTimestamp(5, dp.getNgayNhan() != null ? Timestamp.valueOf(dp.getNgayNhan()) : null);
-        ps.setTimestamp(6, dp.getNgayTra() != null ? Timestamp.valueOf(dp.getNgayTra()) : null);
-        ps.setString(7, dp.getTrangThai());
-        ps.setInt(8, dp.getSoLuong());
-        ps.setDouble(9, dp.getTongTien());
-        ps.setDouble(10, dp.getTienCoc());
-        ps.setString(11, dp.getTrangThaiCoc());
-        
-        return ps.executeUpdate() > 0;
-    } catch (Exception e) {
-        // IN RA LỖI THỰC TẾ ĐỂ BIẾT NGUYÊN NHÂN CHÍNH XÁC
-        System.err.println("--- LỖI KHI INSERT DAT PHONG ---");
-        e.printStackTrace(); 
-    }
-    return false;
-    }
+    
+public boolean updateDatPhong(DatPhong dp) {
+    boolean isUpdated = false;
+    String queryDP = "UPDATE DatPhong SET MaPhong = ?, MaKH = ?, NgayNhan = ?, NgayTra = ?, " +
+                     "TrangThai = ?, SoLuong = ?, TongTien = ?, TienCoc = ?, TrangThaiCoc = ? WHERE MaDP = ?";
+    String queryPhong = "UPDATE Phong SET TinhTrang = ? WHERE MaPhong = ?";
 
-    // 4. Cập nhật thông tin đặt phòng
-    public boolean updateDatPhong(DatPhong dp) {
-        String query = "UPDATE DatPhong SET MaPhong = ?, MaKH = ?, NgayNhan = ?, NgayTra = ?, " +
-                       "TrangThai = ?, SoLuong = ?, TongTien = ?, TienCoc = ?, TrangThaiCoc = ? WHERE MaDP = ?";
-        try (Connection conn = new DBConnection().getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
-            
-            ps.setString(1, dp.getMaPhong());
-            ps.setString(2, dp.getMaKH());
-            ps.setTimestamp(3, dp.getNgayNhan() != null ? Timestamp.valueOf(dp.getNgayNhan()) : null);
-            ps.setTimestamp(4, dp.getNgayTra() != null ? Timestamp.valueOf(dp.getNgayTra()) : null);
-            ps.setString(5, dp.getTrangThai());
-            ps.setInt(6, dp.getSoLuong());
-            ps.setDouble(7, dp.getTongTien());
-            ps.setDouble(8, dp.getTienCoc());
-            ps.setString(9, dp.getTrangThaiCoc());
-            ps.setString(10, dp.getMaDP());
-            
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
+    try (Connection conn = new DBConnection().getConnection()) {
+        conn.setAutoCommit(false);
+
+
+        try (PreparedStatement psDP = conn.prepareStatement(queryDP)) {
+            psDP.setString(1, dp.getMaPhong());
+            psDP.setString(2, dp.getMaKH());
+            psDP.setTimestamp(3, dp.getNgayNhan() != null ? Timestamp.valueOf(dp.getNgayNhan()) : null);
+            psDP.setTimestamp(4, dp.getNgayTra() != null ? Timestamp.valueOf(dp.getNgayTra()) : null);
+            psDP.setString(5, dp.getTrangThai());
+            psDP.setInt(6, dp.getSoLuong());
+            psDP.setDouble(7, dp.getTongTien());
+            psDP.setDouble(8, dp.getTienCoc());
+            psDP.setString(9, dp.getTrangThaiCoc());
+            psDP.setString(10, dp.getMaDP());
+            psDP.executeUpdate();
         }
-        return false;
-    }
 
-    // 5. Xóa đặt phòng theo mã
-    public boolean deleteDatPhong(String maDP) {
-       boolean isDeleted = false;
+        
+        String trangThaiPhong = "Trống";
+        String status = dp.getTrangThai() != null ? dp.getTrangThai().trim() : "";
+        if ("Đã thuê".equals(status) || "Đã xác nhận".equals(status)) {
+            trangThaiPhong = "Đang thuê";
+        } else if ("Hoàn thành".equals(status) || "Đã hủy".equals(status)) {
+            trangThaiPhong = "Trống";
+        }
+
+      
+        if (dp.getMaPhong() != null) {
+            try (PreparedStatement psPhong = conn.prepareStatement(queryPhong)) {
+                psPhong.setString(1, trangThaiPhong);
+                psPhong.setString(2, dp.getMaPhong());
+                psPhong.executeUpdate();
+            }
+        }
+
+        conn.commit();
+        isUpdated = true;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return isUpdated;
+}
+   
+    
+
+
+   public boolean deleteDatPhong(String maDP) {
+    boolean isDeleted = false;
     String maPhong = null;
 
-    // Bước 1: Lấy mã phòng của đơn đặt phòng sắp xóa
-    String sqlGetPhong = "SELECT maPhong FROM DatPhong WHERE maDP = ?";
-    try (Connection conn = DBConnection.getConnection();
+  
+    String sqlGetPhong = "SELECT MaPhong FROM DatPhong WHERE MaDP = ?";
+    try (Connection conn = new DBConnection().getConnection();
          PreparedStatement psGet = conn.prepareStatement(sqlGetPhong)) {
+        
         psGet.setString(1, maDP);
-        ResultSet rs = psGet.executeQuery();
-        if (rs.next()) {
-            maPhong = rs.getString("maPhong");
+        try (ResultSet rs = psGet.executeQuery()) {
+            if (rs.next()) {
+                maPhong = rs.getString("MaPhong");
+            }
         }
     } catch (Exception e) {
         e.printStackTrace();
     }
 
-    // Bước 2: Thực hiện xóa đơn đặt phòng và cập nhật lại trạng thái phòng thành "Trống"
-    String sqlUpdatePhong = "UPDATE Phong SET tinhTrang = N'Trống' WHERE maPhong = ?";
-    String sqlDeleteDP = "DELETE FROM DatPhong WHERE maDP = ?";
+ 
+    String sqlUpdatePhong = "UPDATE Phong SET TinhTrang = N'Trống' WHERE MaPhong = ?";
+    String sqlDeleteDP = "DELETE FROM DatPhong WHERE MaDP = ?";
 
-    try (Connection conn = DBConnection.getConnection()) {
-        // Tắt chế độ Auto-commit để dùng Transaction (đảm bảo an toàn dữ liệu)
-        conn.setAutoCommit(false);
+    try (Connection conn = new DBConnection().getConnection()) {
+        conn.setAutoCommit(false); 
 
-        // 2.1. Cập nhật phòng về trạng thái trống
+       
         if (maPhong != null) {
             try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdatePhong)) {
                 psUpdate.setString(1, maPhong);
@@ -132,7 +133,7 @@ public class DatPhongDAO {
             }
         }
 
-        // 2.2. Xóa đơn đặt phòng
+  
         try (PreparedStatement psDelete = conn.prepareStatement(sqlDeleteDP)) {
             psDelete.setString(1, maDP);
             int rowsAffected = psDelete.executeUpdate();
@@ -141,19 +142,18 @@ public class DatPhongDAO {
             }
         }
 
-        // Commit transaction nếu mọi thứ thành công
-        conn.commit();
+        conn.commit(); 
     } catch (Exception e) {
+        System.err.println("--- LỖI KHI DELETE DAT PHONG ---");
         e.printStackTrace();
     }
     return isDeleted;
-    }
+}
 
-    // 6. Tìm kiếm và lọc dữ liệu (Đã chuẩn hóa JOIN với KhachHang và Phong)
    public List<DatPhong> searchDatPhong(String keyword, String trangThai) {
     List<DatPhong> list = new ArrayList<>();
     
-    // 1. Câu lệnh SQL PHẢI CÓ LEFT JOIN sang KhachHang (lấy HoTen) và Phong (lấy TenPhong)
+
     StringBuilder query = new StringBuilder(
         "SELECT dp.*, kh.HoTen, p.TenPhong " +
         "FROM DatPhong dp " +
@@ -162,7 +162,7 @@ public class DatPhongDAO {
         "WHERE 1=1"
     );
     
-    // Xử lý điều kiện tìm kiếm (nếu có)
+
     boolean hasKeyword = (keyword != null && !keyword.trim().isEmpty());
     boolean hasTrangThai = (trangThai != null && !trangThai.trim().isEmpty());
     
@@ -192,7 +192,7 @@ public class DatPhongDAO {
             while (rs.next()) {
                 DatPhong dp = mapResultSetToDatPhong(rs);
                 
-                // 2. Gán Họ tên khách hàng và Tên phòng vào Object
+              
                 try { dp.setTenKH(rs.getString("HoTen")); } catch (Exception ignored) {}
                 try { dp.setSoPhong(rs.getString("TenPhong")); } catch (Exception ignored) {}
                 
@@ -205,7 +205,7 @@ public class DatPhongDAO {
     return list;
 }
 
-    // 7. Thống kê
+
     public int getTotalDatPhong() {
         String query = "SELECT COUNT(*) FROM DatPhong";
         try (Connection conn = new DBConnection().getConnection();
@@ -322,7 +322,7 @@ public String generateNextMaDP() {
     }
     return nextId;
 }
-// Thêm hàm này vào DatPhongDAO.java
+
 public Map<String, String> getRoomActiveStatusMap() {
     Map<String, String> map = new HashMap<>();
     String sql = "SELECT MaPhong, TrangThai FROM DatPhong WHERE TrangThai IN (N'Đã xác nhận', N'Đã thuê', N'Chờ xác nhận')";
@@ -438,7 +438,7 @@ public int getTotalSearchDatPhong(String keyword, String trangThai) {
             query.append(" AND dp.TrangThai = ?");
         }
         
-        // SQL Server bắt buộc phải có ORDER BY khi dùng OFFSET và FETCH
+        
         query.append(" ORDER BY dp.NgayDat DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         
         try (Connection conn = new DBConnection().getConnection();
@@ -569,5 +569,54 @@ public boolean updateTrangThaiVaCoc(String maDP, String trangThai, String trangT
         e.printStackTrace();
     }
     return false;
+}
+public boolean insertDatPhong(DatPhong dp) {
+    boolean isInserted = false;
+    String queryDP = "INSERT INTO DatPhong (MaDP, MaPhong, MaKH, NgayDat, NgayNhan, NgayTra, TrangThai, SoLuong, TongTien, TienCoc, TrangThaiCoc) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    String queryPhong = "UPDATE Phong SET TinhTrang = ? WHERE MaPhong = ?";
+
+    try (Connection conn = new DBConnection().getConnection()) {
+        conn.setAutoCommit(false); 
+
+      
+        try (PreparedStatement psDP = conn.prepareStatement(queryDP)) {
+            psDP.setString(1, dp.getMaDP());
+            psDP.setString(2, dp.getMaPhong());
+            psDP.setString(3, dp.getMaKH());
+            psDP.setTimestamp(4, dp.getNgayDat() != null ? Timestamp.valueOf(dp.getNgayDat()) : new Timestamp(System.currentTimeMillis()));
+            psDP.setTimestamp(5, dp.getNgayNhan() != null ? Timestamp.valueOf(dp.getNgayNhan()) : null);
+            psDP.setTimestamp(6, dp.getNgayTra() != null ? Timestamp.valueOf(dp.getNgayTra()) : null);
+            psDP.setString(7, dp.getTrangThai());
+            psDP.setInt(8, dp.getSoLuong());
+            psDP.setDouble(9, dp.getTongTien());
+            psDP.setDouble(10, dp.getTienCoc());
+            psDP.setString(11, dp.getTrangThaiCoc());
+            psDP.executeUpdate();
+        }
+
+   
+        String trangThaiPhong = "Trống";
+        String status = dp.getTrangThai() != null ? dp.getTrangThai().trim() : "";
+        if ("Đã thuê".equals(status) || "Đã xác nhận".equals(status)) {
+            trangThaiPhong = "Đang thuê"; 
+        }
+
+      
+        if (dp.getMaPhong() != null) {
+            try (PreparedStatement psPhong = conn.prepareStatement(queryPhong)) {
+                psPhong.setString(1, trangThaiPhong);
+                psPhong.setString(2, dp.getMaPhong());
+                psPhong.executeUpdate();
+            }
+        }
+
+        conn.commit(); 
+        isInserted = true;
+    } catch (Exception e) {
+        System.err.println("--- LỖI KHI INSERT DAT PHONG ---");
+        e.printStackTrace();
+    }
+    return isInserted;
 }
 }

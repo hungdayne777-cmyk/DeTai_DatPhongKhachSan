@@ -233,7 +233,6 @@ public class AdminDatPhongServlet extends HttpServlet {
                     oldTrangThai = (oldTrangThai != null) ? oldTrangThai.trim() : "";
                     String updTrangThaiTrim = (updTrangThai != null) ? updTrangThai.trim() : "";
 
-
                     System.out.println("=== DEBUG TRANG THAI ===");
                     System.out.println("Trạng thái cũ trong DB: [" + oldTrangThai + "]");
                     System.out.println("Trạng thái mới từ Form: [" + updTrangThaiTrim + "]");
@@ -289,21 +288,32 @@ public class AdminDatPhongServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
                     break;
 
-                case "delete":
-                    String maDPDelete = request.getParameter("maDP");
-                    boolean isDeleted = dao.deleteDatPhong(maDPDelete);
+             case "delete":
+    String maDPDelete = request.getParameter("maDP");
+    DatPhong dpDelete = dao.getDatPhongByMaDP(maDPDelete);
 
-                    if (isDeleted) {
-                        request.getSession().setAttribute("message", "Xóa đặt phòng [" + maDPDelete + "] thành công!");
-                    } else {
-                        request.getSession().setAttribute("message", "Xóa đặt phòng thất bại!");
-                    }
-                    response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
-                    break;
+    if (dpDelete == null) {
+        request.getSession().setAttribute("message", "Không tìm thấy mã đặt phòng cần xóa!");
+        response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
+        return; // Dùng return thay vì break
+    }
 
-                default:
-                    response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
-                    break;
+    String trangThaiDel = dpDelete.getTrangThai() != null ? dpDelete.getTrangThai().trim() : "";
+
+    if (!"Đã hủy".equalsIgnoreCase(trangThaiDel) && !"Hoàn thành".equalsIgnoreCase(trangThaiDel)) {
+        request.getSession().setAttribute("message", 
+            "Không thể xóa! Đơn đặt phòng [" + maDPDelete + "] đang ở trạng thái '" + trangThaiDel 
+            + "'. Chỉ có thể xóa các đơn đã ở trạng thái 'Đã hủy' hoặc 'Hoàn thành'.");
+    } else {
+        boolean isDeleted = dao.deleteDatPhong(maDPDelete);
+        String msg = isDeleted 
+            ? "Xóa thành công đơn đặt phòng [" + maDPDelete + "]!" 
+            : "Xóa đơn đặt phòng thất bại!";
+        request.getSession().setAttribute("message", msg);
+    }
+
+    response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
+    break;
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -30,7 +30,7 @@
         </div>
 
         <div class="col-md-3">
-            <select name="status" class="form-select">
+            <select name="status" class="form-control form-select">
                 <option value="">-- Tất cả trạng thái --</option>
                 <option value="Chờ xác nhận" ${status == 'Chờ xác nhận' ? 'selected' : ''}>Chờ xác nhận</option>
                 <option value="Đã xác nhận" ${status == 'Đã xác nhận' ? 'selected' : ''}>Đã xác nhận</option>
@@ -135,9 +135,25 @@
                                     <a href="dat-phong?action=edit&maDP=${dp.maDP}" class="btn btn-sm btn-warning" title="Sửa">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="dat-phong?action=delete&maDP=${dp.maDP}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa đặt phòng này?');" title="Xóa">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                    <c:choose>
+                                        <c:when test="${dp.trangThai == 'Đã hủy' || dp.trangThai == 'Hoàn thành'}">
+                                            <a href="dat-phong?action=delete&maDP=${dp.maDP}" 
+                                               class="btn btn-sm btn-danger" 
+                                               onclick="return confirm('Bạn có chắc chắn muốn xóa đặt phòng này?');" 
+                                               title="Xóa đơn hàng">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <!-- Khóa nút xóa (disabled) đối với các trạng thái khác -->
+                                            <button class="btn btn-sm btn-secondary" 
+                                                    disabled 
+                                                    style="opacity: 0.5; cursor: not-allowed;" 
+                                                    title="Chỉ có thể xóa khi đơn ở trạng thái 'Đã hủy' hoặc 'Hoàn thành'">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -153,35 +169,35 @@
             </tbody>
         </table>
         <c:if test="${totalPages > 1}">
-    <nav aria-label="Page navigation" class="mt-4">
-        <!-- Thêm class custom-pagination vào đây -->
-        <ul class="pagination justify-content-center custom-pagination">
-            <!-- Nút Previous -->
-            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                <a class="page-link" href="dat-phong?action=list&page=${currentPage - 1}&keyword=${keyword}&status=${status}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
+            <nav aria-label="Page navigation" class="mt-4">
+                <!-- Thêm class custom-pagination vào đây -->
+                <ul class="pagination justify-content-center custom-pagination">
+                    <!-- Nút Previous -->
+                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="dat-phong?action=list&page=${currentPage - 1}&keyword=${keyword}&status=${status}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
 
-            <!-- Danh sách các số trang -->
-            <c:forEach begin="1" end="${totalPages}" var="i">
-                <li class="page-item ${currentPage == i ? 'active' : ''}">
-                    <a class="page-link" href="dat-phong?action=list&page=${i}&keyword=${keyword}&status=${status}">${i}</a>
-                </li>
-            </c:forEach>
+                    <!-- Danh sách các số trang -->
+                    <c:forEach begin="1" end="${totalPages}" var="i">
+                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                            <a class="page-link" href="dat-phong?action=list&page=${i}&keyword=${keyword}&status=${status}">${i}</a>
+                        </li>
+                    </c:forEach>
 
-            <!-- Nút Next -->
-            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="dat-phong?action=list&page=${currentPage + 1}&keyword=${keyword}&status=${status}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</c:if>
+                    <!-- Nút Next -->
+                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="dat-phong?action=list&page=${currentPage + 1}&keyword=${keyword}&status=${status}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </c:if>
     </div>
 </div>
-            <style>
+<style>
     .custom-pagination .page-item .page-link {
         color: #212529;
         border-color: #dee2e6;

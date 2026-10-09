@@ -21,7 +21,6 @@
                 <thead class="table-dark text-uppercase">
                     <tr>
                         <th class="py-3 ps-3">Tên Đăng Nhập (Username)</th>
-                        <th class="py-3">Mật Khẩu (Password)</th>
                         <th class="py-3">Quyền (Role)</th>
                         <th class="py-3 text-center">Thao Tác</th>
                     </tr>
@@ -30,7 +29,6 @@
                     <c:forEach var="acc" items="${listAcc}">
                         <tr>
                             <td class="ps-3"><span class="fw-bold text-dark">${acc.username}</span></td>
-                            <td><span class="text-muted">${acc.password}</span></td>
                             <td>
                                 <c:choose>
                                     <c:when test="${acc.role == 1}">

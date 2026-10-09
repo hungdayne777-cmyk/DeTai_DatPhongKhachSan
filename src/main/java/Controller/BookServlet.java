@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpSession;
 public class BookServlet extends HttpServlet {
 
     @Override
+ 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
@@ -44,6 +45,15 @@ public class BookServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/danh-sach-phong");
             return;
         }
+
+        
+        KhachHangDAO khDAO = new KhachHangDAO();
+        String maKH = khDAO.getOrCreateMaKHByUsername(acc.getUsername());
+        Model.KhachHang kh = khDAO.getKhachHangById(maKH);
+        if (kh != null) {
+            request.setAttribute("khachHang", kh);
+        }
+     
 
         request.setAttribute("phongChiTiet", phong);
         request.getRequestDispatcher("/view/book_room.jsp").forward(request, response);

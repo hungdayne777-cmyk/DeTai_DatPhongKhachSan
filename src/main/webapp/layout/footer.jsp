@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!--  footer -->
 <footer>
    <div class="footer">
@@ -21,6 +22,8 @@
                   <li><a href="${pageContext.request.contextPath}/view/gallery.jsp">Thư viện ảnh</a></li>
                   <li><a href="${pageContext.request.contextPath}/view/blog.jsp">Tin tức</a></li>
                   <li><a href="${pageContext.request.contextPath}/view/contact.jsp">Liên hệ</a></li>
+              
+
                </ul>
             </div>
             <div class="col-md-4">

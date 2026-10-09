@@ -102,14 +102,15 @@
 
                                 <div class="form-group mb-3">
                                     <label class="font-weight-bold">Họ và tên người đặt:</label>
-                                    <input type="text" class="form-control" id="hoTen" name="hoTen" placeholder="Nhập họ và tên..." required>
+                                    <input type="text" class="form-control" id="hoTen" name="hoTen" 
+                                           value="${khachHang != null ? khachHang.hoTen : ''}" placeholder="Nhập họ và tên..." readonly required>
                                 </div>
 
                                 <div class="form-group mb-3">
                                     <label class="font-weight-bold">Số điện thoại liên hệ:</label>
-                                    <input type="text" class="form-control" id="sdt" name="sdt" placeholder="Nhập số điện thoại..." required>
+                                    <input type="text" class="form-control" id="sdt" name="sdt" 
+                                           value="${khachHang != null ? khachHang.sdt : ''}" placeholder="Nhập số điện thoại..." readonly required>
                                 </div>
-
                                 <div class="row">
                                     <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-bold">Ngày nhận phòng (Check-in):</label>

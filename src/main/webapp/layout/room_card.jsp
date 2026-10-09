@@ -2,7 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-
 <div class="our_room">
     <div class="container">
         <div class="row">
@@ -29,7 +28,6 @@
                         <div class="card-body d-flex flex-column text-center p-3">
                             <h5 class="card-title font-weight-bold text-dark mb-2">${r.tenPhong}</h5>
 
-
                             <p class="card-text text-muted small text-truncate mb-3">
                                 ${r.moTa}
                             </p>
@@ -41,23 +39,39 @@
                             </p>
 
                             <p class="card-text mb-4"><strong>Tình trạng:</strong> 
-                                <span class="${r.tinhTrang eq 'Trống' ? 'text-success font-weight-bold' : 'text-secondary font-weight-bold'}">
+                                <span class="${r.tinhTrang eq 'Trống' ? 'text-success font-weight-bold' : 'text-danger font-weight-bold'}">
                                     ${r.tinhTrang}
                                 </span>
                             </p>
 
-                            <!-- Cụm nút Chi Tiết và Đặt Ngay -->
+                            <!-- Cụm nút Chi Tiết và Đặt Ngay (Đã áp dụng ràng buộc) -->
                             <div class="mt-auto d-flex justify-content-between align-items-center w-100">
                                 <!-- Nút Chi Tiết gọi hàm JavaScript mở Popup -->
                                 <button type="button" class="btn btn-outline-dark btn-sm font-weight-bold" style="width: 48%;" onclick="openRoomModal('${r.maPhong}')">
                                     Chi Tiết
                                 </button>
 
-                                <!-- Nút Đặt Ngay -->
-                              <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
-                                   class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
-                                    Đặt Ngay
-                                </a>
+                                <!-- RÀNG BUỘC NÚT ĐẶT NGAY TRÊN CARD -->
+                                <c:choose>
+                                    <%-- Trường hợp 1: Phòng TRỐNG -> Hiện nút "Đặt Ngay" màu đỏ --%>
+                                    <c:when test="${r.tinhTrang eq 'Trống'}">
+                                        <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
+                                           class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
+                                            Đặt Ngay
+                                        </a>
+                                    </c:when>
+
+                                    <%-- Trường hợp 2: Phòng ĐANG THUÊ / ĐÃ ĐẶT / BẢO TRÌ -> Hiện nút "Hết Phòng" bị khóa --%>
+                                    <c:otherwise>
+                                        <button type="button" 
+                                                class="btn btn-secondary btn-sm font-weight-bold" 
+                                                disabled 
+                                                style="width: 48%; opacity: 0.65; cursor: not-allowed;" 
+                                                title="Phòng này hiện không khả dụng để đặt!">
+                                            Hết Phòng
+                                        </button>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                         </div>
                     </div>
@@ -71,6 +85,7 @@
                             <h5 style="margin: 0; font-weight: bold; font-size: 18px; color: #fff;"><i class="fa fa-door-open mr-2"></i> Chi Tiết: ${r.tenPhong}</h5>
                             <button type="button" onclick="closeRoomModal('${r.maPhong}')" style="background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; line-height: 1;">&times;</button>
                         </div>
+
                         <!-- Modal Body -->
                         <div style="padding: 20px; max-height: 70vh; overflow-y: auto;">
                             <div class="row align-items-center">
@@ -78,7 +93,6 @@
                                     <img src="${pageContext.request.contextPath}/images/${r.hinhAnh}" class="img-fluid rounded shadow-sm w-100" style="height: 220px; object-fit: cover;" alt="${r.tenPhong}">
                                 </div>
                                 <div class="col-md-6 text-left">
-                                    <!-- Đổi màu chữ nhấn từ xanh dương sang đen/xám đậm -->
                                     <p class="mb-2"><strong>Mã phòng:</strong> <span class="text-dark font-weight-bold">${r.maPhong}</span></p>
                                     <p class="mb-2"><strong>Tên phòng:</strong> ${r.tenPhong}</p>
                                     <p class="mb-2"><strong>Giá thuê:</strong> 
@@ -87,7 +101,7 @@
                                         </span>
                                     </p>
                                     <p class="mb-3"><strong>Tình trạng:</strong> 
-                                        <span class="${r.tinhTrang eq 'Trống' ? 'text-dark font-weight-bold' : 'text-muted font-weight-bold'}">
+                                        <span class="${r.tinhTrang eq 'Trống' ? 'text-success font-weight-bold' : 'text-danger font-weight-bold'}">
                                             ${r.tinhTrang}
                                         </span>
                                     </p>
@@ -113,12 +127,31 @@
                             </div>
                         </div>
 
-                        <!-- Modal Footer (Đổi nút bấm sang tone đen trắng tối giản) -->
+                        <!-- Modal Footer (Đã áp dụng ràng buộc nút bấm) -->
                         <div style="background: #f8f9fa; padding: 12px 20px; text-align: right; border-top: 1px solid #dee2e6;">
                             <button type="button" class="btn btn-outline-dark px-4 font-weight-bold btn-sm mr-2" onclick="closeRoomModal('${r.maPhong}')">Đóng</button>
-                            <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" class="btn btn-danger px-4 font-weight-bold btn-sm" style="background-color: #ff3333; border-color: #121212;">
-                                Đặt Ngay
-                            </a>
+
+                            <!-- RÀNG BUỘC NÚT ĐẶT NGAY TRONG MODAL -->
+                            <c:choose>
+                                <%-- Trường hợp 1: Phòng TRỐNG -> Hiện nút "Đặt Ngay" màu đỏ --%>
+                                <c:when test="${r.tinhTrang eq 'Trống'}">
+                                    <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
+                                       class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
+                                        Đặt Ngay
+                                    </a>
+                                </c:when>
+
+                                <%-- Trường hợp 2: Phòng ĐANG THUÊ / ĐÃ ĐẶT / BẢO TRÌ -> Hiện nút "Hết Phòng" bị khóa --%>
+                                <c:otherwise>
+                                    <button type="button" 
+                                            class="btn btn-secondary btn-sm font-weight-bold" 
+                                            disabled 
+                                            style="width: 48%; opacity: 0.65; cursor: not-allowed;" 
+                                            title="Phòng này hiện không khả dụng để đặt!">
+                                        Hết Phòng
+                                    </button>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </div>
                 </div>
@@ -126,7 +159,7 @@
 
             </c:forEach>
 
-            <!-- Đoạn Script điều khiển đóng/mở popup -->
+            <!-- Script điều khiển đóng/mở popup -->
             <script>
                 function openRoomModal(maPhong) {
                     document.getElementById('customModal_' + maPhong).style.display = 'flex';
@@ -136,7 +169,6 @@
                     document.getElementById('customModal_' + maPhong).style.display = 'none';
                 }
 
-                // Bấm ra ngoài vùng nền tối bên ngoài thì tự động đóng modal
                 window.onclick = function (event) {
                     if (event.target.id && event.target.id.startsWith('customModal_')) {
                         event.target.style.display = 'none';
