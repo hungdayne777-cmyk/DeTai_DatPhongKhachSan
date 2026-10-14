@@ -98,19 +98,24 @@
 
 
                                     <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <!-- Đổi data-toggle thành data-bs-toggle -->
+                                        <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa fa-user me-1"></i> ${sessionScope.acc.username}
                                         </a>
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                                            <!-- NASUKATAN: Agturong itan iti AccountServlet -->
-                                            <a class="dropdown-item" href="${pageContext.request.contextPath}/AccountServlet">
-                                                <i class="fa fa-id-card me-1"></i> Thông tin cá nhân
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/logout">
-                                                <i class="fa fa-sign-out-alt me-1"></i> Đăng xuất
-                                            </a>
-                                        </div>
+                                        <!-- Đổi dropdown-menu-right thành dropdown-menu-end -->
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                            <li>
+                                                <a class="dropdown-item" href="${pageContext.request.contextPath}/AccountServlet">
+                                                    <i class="fa fa-id-card me-1"></i> Thông tin cá nhân
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/logout">
+                                                    <i class="fa fa-sign-out-alt me-1"></i> Đăng xuất
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </c:if>
                             </ul>
@@ -133,6 +138,34 @@
                 link.classList.add('active');
             }
         });
+    });
+</script>
+<script>
+    // Đoạn script tự xử lý bật/tắt dropdown thủ công, đảm bảo click là hiện menu 100%
+    document.addEventListener("DOMContentLoaded", function () {
+        const dropdownToggle = document.getElementById("userDropdown");
+        if (dropdownToggle) {
+            dropdownToggle.addEventListener("click", function (e) {
+                e.preventDefault(); // Ngăn chặn sự kiện click mặc định
+                const parentLi = this.closest('.dropdown');
+                const menu = parentLi.querySelector('.dropdown-menu');
+                if (menu) {
+                    // Toggle class 'show' của Bootstrap
+                    menu.classList.toggle('show');
+                }
+            });
+
+            // Click ra vùng bên ngoài thì tự động ẩn menu đi
+            window.addEventListener("click", function (e) {
+                const parentLi = dropdownToggle.closest('.dropdown');
+                if (parentLi && !parentLi.contains(e.target)) {
+                    const menu = parentLi.querySelector('.dropdown-menu');
+                    if (menu) {
+                        menu.classList.remove('show');
+                    }
+                }
+            });
+        }
     });
 </script>
 <!-- end header inner -->

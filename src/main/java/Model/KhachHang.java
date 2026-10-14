@@ -7,6 +7,7 @@ public class KhachHang {
     private String email;
     private String diaChi;
     private String username;
+    private String avatar; // Thuộc tính lưu tên file ảnh đại diện
 
     // Constructor rỗng
     public KhachHang() {
@@ -21,7 +22,7 @@ public class KhachHang {
         this.diaChi = diaChi;
     }
 
-    // Constructor 6 tham số (Đầy đủ cả username)
+    // Constructor 6 tham số (Cũ - giữ lại để không bị lỗi các file khác đang gọi)
     public KhachHang(String maKH, String hoTen, String sdt, String email, String diaChi, String username) {
         this.maKH = maKH;
         this.hoTen = hoTen;
@@ -29,6 +30,17 @@ public class KhachHang {
         this.email = email;
         this.diaChi = diaChi;
         this.username = username;
+    }
+
+    // Constructor đầy đủ tất cả thuộc tính (Bổ sung thêm avatar)
+    public KhachHang(String maKH, String hoTen, String sdt, String email, String diaChi, String username, String avatar) {
+        this.maKH = maKH;
+        this.hoTen = hoTen;
+        this.sdt = sdt;
+        this.email = email;
+        this.diaChi = diaChi;
+        this.username = username;
+        this.avatar = avatar;
     }
 
     // Getter và Setter
@@ -49,4 +61,7 @@ public class KhachHang {
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
+
+    public String getAvatar() { return avatar; }
+    public void setAvatar(String avatar) { this.avatar = avatar; }
 }

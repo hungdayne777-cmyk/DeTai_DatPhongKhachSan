@@ -5,11 +5,12 @@ public class TaiKhoan {
     private String password;
     private int role;
     
-    // Thêm các thuộc tính thông tin cá nhân
+    // Thuộc tính thông tin cá nhân & Avatar
     private String fullname;
     private String phone;
     private String email;
     private String address;
+    private String avatar;
 
     public TaiKhoan() {
     }
@@ -51,4 +52,7 @@ public class TaiKhoan {
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
+
+    public String getAvatar() { return avatar; }
+    public void setAvatar(String avatar) { this.avatar = avatar; }
 }

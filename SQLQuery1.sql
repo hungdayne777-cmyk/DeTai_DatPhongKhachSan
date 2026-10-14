@@ -1,0 +1,1 @@
+ALTER TABLE KhachHang ADD Avatar VARCHAR(255);

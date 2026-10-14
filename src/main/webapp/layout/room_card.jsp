@@ -12,6 +12,28 @@
                 </div>
             </div>
         </div>
+
+        <!-- THANH LỌC VÀ SẮP XẾP GIÁ PHÒNG -->
+        <div class="row mb-4">
+            <div class="col-md-12 d-flex justify-content-end">
+                <!-- Đặt chính xác action trỏ về URL của Servlet danh sách phòng -->
+                <form action="${pageContext.request.contextPath}/rooms" method="get" class="form-inline">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text bg-dark text-white fw-bold" for="sortSelect">
+                                <i class="fa fa-sort mr-1"></i> Sắp xếp theo giá:
+                            </label>
+                        </div>
+                        <select name="sort" id="sortSelect" class="form-control" onchange="this.form.submit()">
+                            <option value="">-- Mặc định --</option>
+                            <option value="asc" ${param.sort == 'asc' ? 'selected' : ''}>Giá từ thấp đến cao</option>
+                            <option value="desc" ${param.sort == 'desc' ? 'selected' : ''}>Giá từ cao đến thấp</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="row">
 
             <c:forEach items="${roomList}" var="r">
@@ -44,24 +66,21 @@
                                 </span>
                             </p>
 
-                            <!-- Cụm nút Chi Tiết và Đặt Ngay (Đã áp dụng ràng buộc) -->
+                            <!-- Cụm nút Chi Tiết và Đặt Ngay -->
                             <div class="mt-auto d-flex justify-content-between align-items-center w-100">
                                 <!-- Nút Chi Tiết gọi hàm JavaScript mở Popup -->
                                 <button type="button" class="btn btn-outline-dark btn-sm font-weight-bold" style="width: 48%;" onclick="openRoomModal('${r.maPhong}')">
                                     Chi Tiết
                                 </button>
 
-                                <!-- RÀNG BUỘC NÚT ĐẶT NGAY TRÊN CARD -->
+                                <!-- Nút Đặt Ngay -->
                                 <c:choose>
-                                    <%-- Trường hợp 1: Phòng TRỐNG -> Hiện nút "Đặt Ngay" màu đỏ --%>
                                     <c:when test="${r.tinhTrang eq 'Trống'}">
                                         <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
                                            class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
                                             Đặt Ngay
                                         </a>
                                     </c:when>
-
-                                    <%-- Trường hợp 2: Phòng ĐANG THUÊ / ĐÃ ĐẶT / BẢO TRÌ -> Hiện nút "Hết Phòng" bị khóa --%>
                                     <c:otherwise>
                                         <button type="button" 
                                                 class="btn btn-secondary btn-sm font-weight-bold" 
@@ -77,7 +96,7 @@
                     </div>
                 </div>
 
-                <!-- ================= MODAL HIỂN THỊ CHI TIẾT PHÒNG (Tone Trắng - Đen) ================= -->
+                <!-- ================= MODAL HIỂN THỊ CHI TIẾT PHÒNG ================= -->
                 <div id="customModal_${r.maPhong}" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center;">
                     <div style="background: #fff; width: 90%; max-width: 700px; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
 
@@ -127,21 +146,17 @@
                             </div>
                         </div>
 
-                        <!-- Modal Footer (Đã áp dụng ràng buộc nút bấm) -->
+                        <!-- Modal Footer -->
                         <div style="background: #f8f9fa; padding: 12px 20px; text-align: right; border-top: 1px solid #dee2e6;">
                             <button type="button" class="btn btn-outline-dark px-4 font-weight-bold btn-sm mr-2" onclick="closeRoomModal('${r.maPhong}')">Đóng</button>
 
-                            <!-- RÀNG BUỘC NÚT ĐẶT NGAY TRONG MODAL -->
                             <c:choose>
-                                <%-- Trường hợp 1: Phòng TRỐNG -> Hiện nút "Đặt Ngay" màu đỏ --%>
                                 <c:when test="${r.tinhTrang eq 'Trống'}">
                                     <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
                                        class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
                                         Đặt Ngay
                                     </a>
                                 </c:when>
-
-                                <%-- Trường hợp 2: Phòng ĐANG THUÊ / ĐÃ ĐẶT / BẢO TRÌ -> Hiện nút "Hết Phòng" bị khóa --%>
                                 <c:otherwise>
                                     <button type="button" 
                                             class="btn btn-secondary btn-sm font-weight-bold" 

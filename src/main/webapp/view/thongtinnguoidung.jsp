@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thông Tin Cá Nhân & Đổi Mật Khẩu</title>
 
-    <!-- Các file CSS nền tảng & giao diện chuẩn của template -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/font-awesome.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
@@ -48,22 +47,37 @@
 
     <div class="container my-4">
         <div class="profile-card">
-            <div class="row">
-                
-                <!-- Cột trái: Avatar -->
-                <div class="col-md-4 text-center border-right">
-                    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-avatar mb-3" alt="Avatar">
-                    <h4 class="font-weight-bold text-dark">${sessionScope.acc.username}</h4>
-                    <p class="text-muted">Khách hàng</p>
-                </div>
+            <!-- Thêm enctype="multipart/form-data" để form hỗ trợ upload file ảnh -->
+            <form action="${pageContext.request.contextPath}/AccountServlet" method="POST" enctype="multipart/form-data">
+                <div class="row">
+                    
+                    <!-- Cột trái: Hiển thị và Chọn Avatar -->
+                    <div class="col-md-4 text-center border-right d-flex flex-column align-items-center justify-content-center">
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.acc.avatar}">
+                                <img src="${pageContext.request.contextPath}/images/${sessionScope.acc.avatar}" class="profile-avatar mb-3 shadow-sm" alt="Avatar">
+                            </c:when>
+                            <c:otherwise>
+                                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-avatar mb-3 shadow-sm" alt="Avatar">
+                            </c:otherwise>
+                        </c:choose>
 
-                <!-- Cột phải: Form nhập liệu & Đổi mật khẩu -->
-                <div class="col-md-8">
-                    <c:if test="${not empty message}">
-                        <div class="alert alert-info">${message}</div>
-                    </c:if>
+                        <h4 class="font-weight-bold text-dark mb-1">${sessionScope.acc.username}</h4>
+                        <p class="text-muted mb-3">Khách hàng</p>
 
-                    <form action="${pageContext.request.contextPath}/AccountServlet" method="POST">
+                        <!-- Ô chọn file upload ảnh đại diện mới -->
+                        <div class="form-group w-100 px-3">
+                            <label class="small text-danger font-weight-bold mb-1">Đổi ảnh đại diện:</label>
+                            <input type="file" name="avatarFile" class="form-control-file form-control-sm border p-1 rounded bg-light" accept="image/*">
+                        </div>
+                    </div>
+
+                    <!-- Cột phải: Form nhập liệu thông tin & Đổi mật khẩu -->
+                    <div class="col-md-8">
+                        <c:if test="${not empty message}">
+                            <div class="alert alert-info">${message}</div>
+                        </c:if>
+
                         <h4 class="text-danger font-weight-bold mb-3">THÔNG TIN CÁ NHÂN</h4>
 
                         <div class="form-group mb-3">
@@ -120,10 +134,10 @@
                                 Cập Nhật Thông Tin
                             </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
 
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 

@@ -24,17 +24,14 @@ public class RegisterServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
 
-       
         String user = request.getParameter("username");
         String pass = request.getParameter("password");
         String re_pass = request.getParameter("re_password");
 
-    
         String hoTen = request.getParameter("hoTen");
         String sdt = request.getParameter("sdt");
         String email = request.getParameter("email");
-        String diachi = request.getParameter("diachi");
-
+        String diachi = request.getParameter("diachi"); // Đã khớp tên biến
 
         if (!pass.equals(re_pass)) {
             request.setAttribute("error", "Mật khẩu nhập lại không khớp!");
@@ -47,13 +44,12 @@ public class RegisterServlet extends HttpServlet {
             request.setAttribute("error", "Tên đăng nhập đã tồn tại!");
             request.getRequestDispatcher("/view/register.jsp").forward(request, response);
         } else {
-            
             tkDao.register(user, pass);
 
-           
             KhachHangDAO khDao = new KhachHangDAO();
             String maKH = khDao.generateNextMaKH(); 
-            khDao.insertKhachHang(maKH, hoTen, sdt, email, diachi, user);
+            // Truyền biến diachi đúng chính tả và thêm "" cho avatar mặc định
+            khDao.insertKhachHang(maKH, hoTen, sdt, email, diachi, user, "");
 
             request.setAttribute("success", "Đăng ký thành công! Vui lòng đăng nhập.");
             request.getRequestDispatcher("/view/login.jsp").forward(request, response);

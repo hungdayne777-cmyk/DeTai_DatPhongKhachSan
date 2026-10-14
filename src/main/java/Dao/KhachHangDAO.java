@@ -49,7 +49,7 @@ public class KhachHangDAO {
                 return rs.getString("MaKH");
             } else {
                 String newMaKH = generateNextMaKH();
-                insertKhachHang(newMaKH, username, "", "", "", username);
+                insertKhachHang(newMaKH, username, "", "", "", username, "");
                 return newMaKH;
             }
         } catch (Exception e) {
@@ -60,7 +60,7 @@ public class KhachHangDAO {
         return null;
     }
 
-    // 3. Lấy đối tượng KhachHang theo MaKH
+    // 3. Lấy đối tượng KhachHang theo MaKH (Bổ sung Avatar)
     public KhachHang getKhachHangById(String maKH) {
         String query = "SELECT * FROM KhachHang WHERE MaKH = ?";
         try {
@@ -69,7 +69,7 @@ public class KhachHangDAO {
             ps.setString(1, maKH);
             rs = ps.executeQuery();
             if (rs.next()) {
-                return new KhachHang(
+                KhachHang kh = new KhachHang(
                     rs.getString("MaKH"),
                     rs.getString("HoTen"),
                     rs.getString("SDT"),
@@ -77,6 +77,8 @@ public class KhachHangDAO {
                     rs.getString("DiaChi"),
                     rs.getString("Username")
                 );
+                kh.setAvatar(rs.getString("Avatar"));
+                return kh;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,9 +88,9 @@ public class KhachHangDAO {
         return null;
     }
 
-    // 4. Thêm Khách hàng mới
-    public void insertKhachHang(String maKH, String hoTen, String sdt, String email, String diaChi, String username) {
-        String query = "INSERT INTO KhachHang (MaKH, HoTen, SDT, Email, DiaChi, Username) VALUES (?, ?, ?, ?, ?, ?)";
+    // 4. Thêm Khách hàng mới (Bổ sung Avatar)
+    public void insertKhachHang(String maKH, String hoTen, String sdt, String email, String diaChi, String username, String avatar) {
+        String query = "INSERT INTO KhachHang (MaKH, HoTen, SDT, Email, DiaChi, Username, Avatar) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             conn = DBConnection.getConnection();
             ps = conn.prepareStatement(query);
@@ -98,6 +100,7 @@ public class KhachHangDAO {
             ps.setString(4, email);
             ps.setString(5, diaChi);
             ps.setString(6, username);
+            ps.setString(7, avatar);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -106,10 +109,10 @@ public class KhachHangDAO {
         }
     }
 
-    // 5. Lấy thông tin khách hàng dạng Map theo Username (cho AccountServlet)
+    // 5. Lấy thông tin khách hàng dạng Map theo Username (Bổ sung Avatar)
     public Map<String, String> getCustomerByUsername(String username) {
         Map<String, String> info = new HashMap<>();
-        String query = "SELECT HoTen, SDT, Email, DiaChi FROM KhachHang WHERE Username = ?";
+        String query = "SELECT HoTen, SDT, Email, DiaChi, Avatar FROM KhachHang WHERE Username = ?";
         try {
             conn = DBConnection.getConnection();
             ps = conn.prepareStatement(query);
@@ -120,6 +123,7 @@ public class KhachHangDAO {
                 info.put("phone", rs.getString("SDT"));
                 info.put("email", rs.getString("Email"));
                 info.put("address", rs.getString("DiaChi"));
+                info.put("avatar", rs.getString("Avatar"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,9 +133,9 @@ public class KhachHangDAO {
         return info;
     }
 
-    // 6. Cập nhật thông tin khách hàng theo Username (cho AccountServlet)
-    public boolean updateCustomerProfile(String username, String fullname, String phone, String email, String address) {
-        String query = "UPDATE KhachHang SET HoTen = ?, SDT = ?, Email = ?, DiaChi = ? WHERE Username = ?";
+    // 6. Cập nhật thông tin và Avatar theo Username (Cho AccountServlet)
+    public boolean updateCustomerProfile(String username, String fullname, String phone, String email, String address, String avatar) {
+        String query = "UPDATE KhachHang SET HoTen = ?, SDT = ?, Email = ?, DiaChi = ?, Avatar = ? WHERE Username = ?";
         try {
             conn = DBConnection.getConnection();
             ps = conn.prepareStatement(query);
@@ -139,7 +143,8 @@ public class KhachHangDAO {
             ps.setString(2, phone);
             ps.setString(3, email);
             ps.setString(4, address);
-            ps.setString(5, username);
+            ps.setString(5, avatar);
+            ps.setString(6, username);
             
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -150,7 +155,7 @@ public class KhachHangDAO {
         return false;
     }
 
-    // 7. Lấy danh sách tất cả khách hàng
+    // 7. Lấy danh sách tất cả khách hàng (Bổ sung Avatar)
     public List<Map<String, String>> getAllKhachHang() {
         List<Map<String, String>> list = new ArrayList<>();
         String query = "SELECT * FROM KhachHang";
@@ -166,6 +171,7 @@ public class KhachHangDAO {
                 item.put("email", rs.getString("Email"));
                 item.put("diaChi", rs.getString("DiaChi"));
                 item.put("username", rs.getString("Username"));
+                item.put("avatar", rs.getString("Avatar"));
                 list.add(item);
             }
         } catch (Exception e) {
@@ -176,7 +182,7 @@ public class KhachHangDAO {
         return list;
     }
 
-    // 8. Đếm tổng số lượng khách hàng (Hỗ trợ tìm kiếm theo từ khóa cho AdminKhachHangServlet)
+    // 8. Đếm tổng số lượng khách hàng
     public int getTotalKhachHang(String keyword) {
         String query = "SELECT COUNT(*) FROM KhachHang WHERE HoTen LIKE ? OR SDT LIKE ? OR Email LIKE ? OR Username LIKE ?";
         try {
@@ -199,7 +205,7 @@ public class KhachHangDAO {
         return 0;
     }
 
-    // 9. Lấy danh sách khách hàng phân trang & tìm kiếm (Hỗ trợ cho AdminKhachHangServlet)
+    // 9. Lấy danh sách khách hàng phân trang & tìm kiếm
     public List<KhachHang> getKhachHangByPage(String keyword, int offset, int limit) {
         List<KhachHang> list = new ArrayList<>();
         String query = "SELECT * FROM KhachHang WHERE HoTen LIKE ? OR SDT LIKE ? OR Email LIKE ? OR Username LIKE ? " +
@@ -216,14 +222,16 @@ public class KhachHangDAO {
             ps.setInt(6, limit);
             rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(new KhachHang(
+                KhachHang kh = new KhachHang(
                     rs.getString("MaKH"),
                     rs.getString("HoTen"),
                     rs.getString("SDT"),
                     rs.getString("Email"),
                     rs.getString("DiaChi"),
                     rs.getString("Username")
-                ));
+                );
+                kh.setAvatar(rs.getString("Avatar"));
+                list.add(kh);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -247,6 +255,7 @@ public class KhachHangDAO {
             closeResources();
         }
     }
+
     public boolean updateKhachHangNameAndPhone(String maKH, String hoTen, String sdt) {
         String query = "UPDATE KhachHang SET HoTen = ?, SDT = ? WHERE MaKH = ?";
         try {
@@ -265,7 +274,7 @@ public class KhachHangDAO {
     }
     
     public void addKhachHang(KhachHang kh) {
-        String query = "INSERT INTO KhachHang (MaKH, HoTen, SDT, Email, DiaChi, Username) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO KhachHang (MaKH, HoTen, SDT, Email, DiaChi, Username, Avatar) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             conn = DBConnection.getConnection();
             ps = conn.prepareStatement(query);
@@ -275,6 +284,7 @@ public class KhachHangDAO {
             ps.setString(4, kh.getEmail());
             ps.setString(5, kh.getDiaChi());
             ps.setString(6, kh.getUsername() != null ? kh.getUsername() : "");
+            ps.setString(7, kh.getAvatar());
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -284,7 +294,7 @@ public class KhachHangDAO {
     }
     
     public boolean updateKhachHang(KhachHang kh) {
-        String query = "UPDATE KhachHang SET HoTen = ?, SDT = ?, Email = ?, DiaChi = ? WHERE MaKH = ?";
+        String query = "UPDATE KhachHang SET HoTen = ?, SDT = ?, Email = ?, DiaChi = ?, Avatar = ? WHERE MaKH = ?";
         try {
             conn = DBConnection.getConnection();
             ps = conn.prepareStatement(query);
@@ -292,7 +302,8 @@ public class KhachHangDAO {
             ps.setString(2, kh.getSdt());
             ps.setString(3, kh.getEmail());
             ps.setString(4, kh.getDiaChi());
-            ps.setString(5, kh.getMaKH());
+            ps.setString(5, kh.getAvatar());
+            ps.setString(6, kh.getMaKH());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -302,9 +313,7 @@ public class KhachHangDAO {
         return false;
     }
 
-    // 2. Kiểm tra xem khách hàng đã có lịch sử đặt phòng hay chưa (Kiểm tra trước khi xóa)
     public boolean hasBookings(String maKH) {
-        // Thay đổi tên bảng đặt phòng (ví dụ DatPhong) và tên cột khóa ngoại cho khớp với DB của bạn nếu cần
         String query = "SELECT COUNT(*) FROM DatPhong WHERE MaKH = ?";
         try {
             conn = DBConnection.getConnection();
@@ -315,7 +324,6 @@ public class KhachHangDAO {
                 return rs.getInt(1) > 0;
             }
         } catch (Exception e) {
-            // Nếu bảng DatPhong không tồn tại hoặc lỗi truy vấn, tạm thời trả về false để cho phép xóa
             return false;
         } finally {
             closeResources();
@@ -324,21 +332,21 @@ public class KhachHangDAO {
     }
     
     public boolean updatePassword(String username, String newPassword) {
-    String query = "UPDATE TaiKhoan SET password = ? WHERE username = ?";
-    try {
-        conn = Utils.DBConnection.getConnection();
-        ps = conn.prepareStatement(query);
-        ps.setString(1, newPassword);
-        ps.setString(2, username);
-        return ps.executeUpdate() > 0;
-    } catch (Exception e) {
-        e.printStackTrace();
-    } finally {
-        try { if (ps != null) ps.close(); } catch (Exception e) {}
-        try { if (conn != null) conn.close(); } catch (Exception e) {}
+        String query = "UPDATE TaiKhoan SET password = ? WHERE username = ?";
+        try {
+            conn = DBConnection.getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, newPassword);
+            ps.setString(2, username);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try { if (ps != null) ps.close(); } catch (Exception e) {}
+            try { if (conn != null) conn.close(); } catch (Exception e) {}
+        }
+        return false;
     }
-    return false;
-}
 
     private void closeResources() {
         try { if (rs != null) rs.close(); } catch (Exception e) {}
