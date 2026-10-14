@@ -8,7 +8,7 @@
         padding-right: 8px !important;
         font-size: 13.5px;
     }
-    
+
     .logo img {
         max-height: 45px;
         width: auto;
@@ -25,7 +25,7 @@
     <div class="header">
         <div class="container">
             <div class="row align-items-center">
-                
+
                 <!-- CHỈ HIỂN THỊ LOGO KHI: CHƯA ĐĂNG NHẬP HOẶC LÀ ADMIN (role == 1) -->
                 <c:if test="${empty sessionScope.acc || sessionScope.acc.role == 1}">
                     <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col logo_section">
@@ -38,7 +38,7 @@
                         </div>
                     </div>
                 </c:if>
-                
+
                 <!-- Cột menu: Nếu là khách thường (ẩn logo) thì chiếm trọn col-12, ngược lại chiếm col-xl-10 -->
                 <div class="${(empty sessionScope.acc || sessionScope.acc.role == 1) ? 'col-xl-10 col-lg-10 col-md-10 col-sm-10' : 'col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12'}">
                     <nav class="navigation navbar navbar-expand-md navbar-dark ">
@@ -77,30 +77,40 @@
 
                                 <!-- Nếu ĐÃ ĐĂNG NHẬP -->
                                 <c:if test="${not empty sessionScope.acc}">
-                                    
+
                                     <!-- CHỈ HIỂN THỊ NẾU KHÔNG PHẢI ADMIN -->
                                     <c:choose>
                                         <c:when test="${sessionScope.acc.role != 1}">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="${pageContext.request.contextPath}/my-booking">
-                                                <i class="fa fa-bookmark" aria-hidden="true"></i> PHÒNG CỦA TÔI
-                                            </a>
-                                        </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="${pageContext.request.contextPath}/my-booking">
+                                                    <i class="fa fa-bookmark" aria-hidden="true"></i> PHÒNG CỦA TÔI
+                                                </a>
+                                            </li>
                                         </c:when>
                                         <c:otherwise>
-                                             <li class="nav-item">
-                                            <a class="nav-link" href="${pageContext.request.contextPath}/admin/overview">
-                                                <i class="fa fa-bookmark" aria-hidden="true"></i> QUẢN TRỊ
-                                            </a>
-                                        </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="${pageContext.request.contextPath}/admin/overview">
+                                                    <i class="fa fa-bookmark" aria-hidden="true"></i> QUẢN TRỊ
+                                                </a>
+                                            </li>
                                         </c:otherwise>
                                     </c:choose> 
-                                   
-                                   
-                                    <li class="nav-item">
-                                        <a class="nav-link text-danger fw-bold" href="${pageContext.request.contextPath}/logout">
-                                            <i class="fa fa-sign-out-alt me-1"></i> ĐĂNG XUẤT (${sessionScope.acc.username})
+
+
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-user me-1"></i> ${sessionScope.acc.username}
                                         </a>
+                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                            <!-- NASUKATAN: Agturong itan iti AccountServlet -->
+                                            <a class="dropdown-item" href="${pageContext.request.contextPath}/AccountServlet">
+                                                <i class="fa fa-id-card me-1"></i> Thông tin cá nhân
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/logout">
+                                                <i class="fa fa-sign-out-alt me-1"></i> Đăng xuất
+                                            </a>
+                                        </div>
                                     </li>
                                 </c:if>
                             </ul>
