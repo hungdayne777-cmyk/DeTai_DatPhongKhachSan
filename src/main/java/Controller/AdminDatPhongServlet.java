@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@WebServlet(name = "AdminDatPhongServlet", urlPatterns = {"/admin/booking-manage", "/admin/dat-phong"})
+@WebServlet(name = "AdminDatPhongServlet", urlPatterns = {"/admin/booking-manage", "/admin/dat-phong","/admin/admindatphong"})
 public class AdminDatPhongServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)

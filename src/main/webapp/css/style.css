@@ -1021,3 +1021,264 @@ line-height: 35px;
     width: auto !important;      /* Giữ nguyên tỷ lệ, không bị méo ảnh */
     object-fit: contain;
 }
+/* =========================================
+   FIX LAYOUT ADMIN - SIDEBAR VÀ NỘI DUNG
+   Dán vào CUỐI FILE style.css
+   ========================================= */
+
+/* Không cho toàn bộ trang bị tràn ngang */
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Sidebar luôn cố định bên trái */
+.sidebar-modern {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 260px !important;
+    height: 100vh !important;
+    z-index: 1040 !important;
+}
+
+/* Nội dung chính chừa đúng khoảng sidebar */
+.main-content {
+    margin-left: 260px !important;
+    width: calc(100% - 260px) !important;
+    max-width: calc(100% - 260px) !important;
+    min-width: 0 !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+
+/* Không để container giới hạn chiều rộng nội dung admin */
+.main-content .container,
+.main-content .container-fluid {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Trang đặt phòng chiếm đúng chiều rộng được cấp */
+.booking-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Chỉ bảng được phép cuộn ngang */
+.booking-glass-card.table-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+.booking-table-wrapper {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.booking-table {
+    width: max-content !important;
+    min-width: 1500px !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+}
+
+/* Màn hình nhỏ */
+@media (max-width: 768px) {
+    .sidebar-modern {
+        width: 230px !important;
+    }
+
+    .main-content {
+        margin-left: 230px !important;
+        width: calc(100% - 230px) !important;
+        max-width: calc(100% - 230px) !important;
+        padding: 12px !important;
+    }
+}
+.sidebar-modern,
+.admin-sidebar {
+    z-index: 1050;
+}
+
+/* Chừa khoảng trống cho sidebar */
+.main-content {
+    margin-left: 290px !important;
+    width: calc(100% - 290px) !important;
+    max-width: calc(100% - 290px) !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 24px !important;
+    overflow-x: auto;
+}
+
+/* Không để các khung bên trong tràn ra ngoài màn hình */
+.main-content .container,
+.main-content .container-fluid {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Cho phép bảng cuộn ngang khi có nhiều cột */
+.main-content .table-responsive {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Giữ đủ chiều rộng cho bảng quản lý đặt phòng */
+.main-content .table-responsive table,
+.main-content table.table {
+    min-width: 1200px;
+    white-space: nowrap;
+}
+
+/* Chuẩn hóa phông chữ trong khu vực quản trị */
+.main-content {
+    font-family: 'Roboto', Arial, sans-serif !important;
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: normal;
+}
+
+.main-content h1,
+.main-content h2,
+.main-content h3,
+.main-content h4,
+.main-content h5,
+.main-content h6,
+.main-content p,
+.main-content label,
+.main-content th,
+.main-content td,
+.main-content button,
+.main-content input,
+.main-content select,
+.main-content textarea {
+    font-family: 'Roboto', Arial, sans-serif !important;
+    letter-spacing: normal !important;
+}
+
+/* Tránh tiêu đề bị ép sát hoặc xuống dòng không cần thiết */
+.main-content h1,
+.main-content h2,
+.main-content h3,
+.main-content h4 {
+    line-height: 1.4;
+}
+
+/* Màn hình nhỏ */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 230px !important;
+        width: calc(100% - 230px) !important;
+        max-width: calc(100% - 230px) !important;
+        padding: 12px !important;
+    }
+}
+
+/* =========================================
+   DARK THEME CHỈ DÀNH CHO TRANG ADMIN
+   ========================================= */
+
+body.admin-theme {
+    background-color: #121212 !important;
+    color: #f1f1f1;
+}
+
+/* Nền khu vực nội dung Admin */
+body.admin-theme .main-content {
+    background-color: #121212 !important;
+    color: #f1f1f1;
+}
+
+/* Các vùng bọc nội dung */
+body.admin-theme .main-content .container,
+body.admin-theme .main-content .container-fluid {
+    background-color: transparent !important;
+}
+
+/* Tiêu đề trong Admin */
+body.admin-theme .main-content h1,
+body.admin-theme .main-content h2,
+body.admin-theme .main-content h3,
+body.admin-theme .main-content h4,
+body.admin-theme .main-content h5,
+body.admin-theme .main-content h6 {
+    color: #f1f1f1;
+}
+
+/* Chữ mô tả */
+body.admin-theme .main-content p,
+body.admin-theme .main-content label {
+    color: #ddd;
+}
+
+/* Card và khung nội dung */
+body.admin-theme .main-content .card,
+body.admin-theme .main-content .booking-glass-card {
+    background-color: #1c1c1c;
+    color: #f1f1f1;
+    border-color: #333;
+}
+
+/* Ô nhập liệu */
+body.admin-theme .main-content .form-control,
+body.admin-theme .main-content .form-select {
+    background-color: #292929;
+    color: #f1f1f1;
+    border-color: #444;
+}
+
+body.admin-theme .main-content .form-control:focus,
+body.admin-theme .main-content .form-select:focus {
+    background-color: #292929;
+    color: #fff;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.2);
+}
+
+body.admin-theme .main-content .form-control::placeholder {
+    color: #999;
+}
+
+/* Bảng dữ liệu */
+body.admin-theme .main-content .table {
+    color: #eee;
+    --bs-table-bg: #1c1c1c;
+    --bs-table-color: #eee;
+    --bs-table-border-color: #383838;
+}
+
+/* Giữ nền tối khi rê chuột trên bảng */
+body.admin-theme .main-content .table tbody tr:hover > * {
+    --bs-table-bg: #292929;
+    color: #fff;
+}
+
+/* Các đường phân cách */
+body.admin-theme .main-content .border-bottom,
+body.admin-theme .main-content .border-top {
+    border-color: #383838 !important;
+}

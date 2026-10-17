@@ -17,6 +17,47 @@
     .navbar-nav .nav-item:first-child {
         margin-left: 25px;
     }
+
+    /* === TỐI ƯU RESPONSIVE CHO IPHONE VÀ MÀN HÌNH NHỎ === */
+    @media (max-width: 991.98px) {
+        .navbar-collapse {
+            background-color: #121212 !important; /* Nền đen chủ đạo */
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            max-height: 75vh; /* Giới hạn chiều cao để không bị tràn màn hình điện thoại */
+            overflow-y: auto;  /* Cho phép cuộn dọc nếu menu quá dài */
+        }
+        
+        .navbar-nav .nav-item:first-child {
+            margin-left: 0;
+        }
+
+        .navigation.navbar-dark .navbar-nav .nav-link {
+            white-space: normal;
+            padding: 12px 0 !important;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-size: 15px;
+        }
+
+        /* Đảm bảo nút toggle 3 gạch luôn hiển thị nổi bật và bấm được */
+        .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            padding: 6px 10px;
+        }
+
+        .dropdown-menu {
+            background-color: #1a1a24 !important;
+            border: none;
+            padding-left: 15px;
+        }
+        
+        .dropdown-item {
+            color: #fff !important;
+            padding: 8px 0;
+        }
+    }
 </style>
 
 <!-- header -->
@@ -41,13 +82,15 @@
 
                 <!-- Cột menu: Nếu là khách thường (ẩn logo) thì chiếm trọn col-12, ngược lại chiếm col-xl-10 -->
                 <div class="${(empty sessionScope.acc || sessionScope.acc.role == 1) ? 'col-xl-10 col-lg-10 col-md-10 col-sm-10' : 'col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12'}">
-                    <nav class="navigation navbar navbar-expand-md navbar-dark ">
+                    <nav class="navigation navbar navbar-expand-lg navbar-dark">
+                        <!-- Nút Toggle 3 gạch (Đã đảm bảo luôn hiện khi màn hình nhỏ) -->
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
+                        
                         <div class="collapse navbar-collapse ${(not empty sessionScope.acc && sessionScope.acc.role != 1) ? 'justify-content-end' : ''}" id="navbarsExample04">
                             <ul class="navbar-nav ${(not empty sessionScope.acc && sessionScope.acc.role != 1) ? 'ml-auto' : 'mr-auto'}">
-                                <li class="nav-item ">
+                                <li class="nav-item">
                                     <a class="nav-link" href="${pageContext.request.contextPath}/Trang-chu">Trang chủ</a>
                                 </li>
                                 <li class="nav-item">
@@ -66,7 +109,7 @@
                                     <a class="nav-link" href="${pageContext.request.contextPath}/gui-lien-he">Liên hệ</a>
                                 </li>
 
-                                <!-- Nếu CHƯA ĐĂNG NHẬP (Session acc trống) -->
+                                <!-- Nếu CHƯA ĐĂNG NHẬP -->
                                 <c:if test="${empty sessionScope.acc}">
                                     <li class="nav-item">
                                         <a class="nav-link" href="${pageContext.request.contextPath}/login">
@@ -78,7 +121,6 @@
                                 <!-- Nếu ĐÃ ĐĂNG NHẬP -->
                                 <c:if test="${not empty sessionScope.acc}">
 
-                                    <!-- CHỈ HIỂN THỊ NẾU KHÔNG PHẢI ADMIN -->
                                     <c:choose>
                                         <c:when test="${sessionScope.acc.role != 1}">
                                             <li class="nav-item">
@@ -94,15 +136,12 @@
                                                 </a>
                                             </li>
                                         </c:otherwise>
-                                    </c:choose> 
-
+                                    </c:choose>  
 
                                     <li class="nav-item dropdown">
-                                        <!-- Đổi data-toggle thành data-bs-toggle -->
                                         <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa fa-user me-1"></i> ${sessionScope.acc.username}
                                         </a>
-                                        <!-- Đổi dropdown-menu-right thành dropdown-menu-end -->
                                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                             <li>
                                                 <a class="dropdown-item" href="${pageContext.request.contextPath}/AccountServlet">
@@ -141,21 +180,18 @@
     });
 </script>
 <script>
-    // Đoạn script tự xử lý bật/tắt dropdown thủ công, đảm bảo click là hiện menu 100%
     document.addEventListener("DOMContentLoaded", function () {
         const dropdownToggle = document.getElementById("userDropdown");
         if (dropdownToggle) {
             dropdownToggle.addEventListener("click", function (e) {
-                e.preventDefault(); // Ngăn chặn sự kiện click mặc định
+                e.preventDefault();
                 const parentLi = this.closest('.dropdown');
                 const menu = parentLi.querySelector('.dropdown-menu');
                 if (menu) {
-                    // Toggle class 'show' của Bootstrap
                     menu.classList.toggle('show');
                 }
             });
 
-            // Click ra vùng bên ngoài thì tự động ẩn menu đi
             window.addEventListener("click", function (e) {
                 const parentLi = dropdownToggle.closest('.dropdown');
                 if (parentLi && !parentLi.contains(e.target)) {
@@ -168,5 +204,3 @@
         }
     });
 </script>
-<!-- end header inner -->
-<!-- end header -->

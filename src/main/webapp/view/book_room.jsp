@@ -124,11 +124,9 @@
                                     </div>
                                 </div>
 
-                                <!-- THÊM COMBOBOX CHỌN TỶ LỆ % ĐẶT CỌC -->
                                 <div class="form-group mb-3">
                                     <label class="font-weight-bold">Tỷ lệ đặt cọc (%):</label>
                                     <select class="form-control" id="tyLeCoc" name="tyLeCoc">
-                                        
                                         <option value="10">10%</option>
                                         <option value="20">20%</option>
                                         <option value="30" selected>30% (Mặc định)</option>
@@ -192,6 +190,7 @@
                                     </select>
                                 </div>
 
+                                <!-- 1. THÔNG TIN CHUYỂN KHOẢN NGÂN HÀNG -->
                                 <div id="bankTransferInfo" class="border p-3 rounded mb-3 bg-white" style="display: none;">
                                     <h6 class="font-weight-bold text-center text-danger mb-3"><i class="fa fa-qrcode mr-1"></i> Thông Tin Chuyển Khoản Ngân Hàng</h6>
                                     <div class="row align-items-center">
@@ -206,6 +205,49 @@
                                         </div>
                                     </div>
                                 </div>
+
+                               <!-- 2. THÔNG TIN VÍ ĐIỆN TỬ MOMO -->
+<div id="momoInfo" class="border p-3 rounded mb-3 bg-white" style="display: none;">
+    <h6 class="font-weight-bold text-center mb-3" style="color: #ae2070 !important;"><i class="fa fa-mobile mr-1"></i> Quét Mã QR Ví MoMo</h6>
+    <div class="row align-items-center">
+        <div class="col-md-5 text-center mb-3 mb-md-0">
+            <img id="qrMomoImg" src="" alt="Mã QR MoMo" class="img-fluid rounded border shadow-sm" style="max-height: 185px; width: 100%; object-fit: contain;">
+        </div>
+        <div class="col-md-7 small">
+            <p class="mb-1"><strong>Ví điện tử:</strong> MoMo</p>
+            
+            <!-- THAY SỐ DƯỚI ĐÂY -->
+            <p class="mb-1"><strong>Số điện thoại MoMo:</strong> <span class="text-dark font-weight-bold">0901484762</span></p>
+            
+            <p class="mb-1"><strong>Chủ tài khoản:</strong> <span class="text-dark font-weight-bold">KHACH SAN</span></p>
+            <p class="mb-1"><strong>Nội dung:</strong> <span class="text-danger font-weight-bold">DATPHONG ${phongChiTiet.maPhong}</span></p>
+        </div>
+    </div>
+</div>
+
+                                <!-- 3. THÔNG TIN THẺ VISA / MASTERCARD -->
+                                <div id="visaInfo" class="border p-3 rounded mb-3 bg-white" style="display: none;">
+                                    <h6 class="font-weight-bold text-center text-primary mb-3"><i class="fa fa-lock mr-1"></i> Nhập Thông Tin Thẻ Quốc Tế</h6>
+                                    <div class="form-group mb-2">
+                                        <label class="small text-muted mb-1 font-weight-bold">Số thẻ (Card Number)</label>
+                                        <input type="text" name="cardNumber" class="form-control form-control-sm" placeholder="4000 1234 5678 9010">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 form-group mb-2">
+                                            <label class="small text-muted mb-1 font-weight-bold">Ngày hết hạn (MM/YY)</label>
+                                            <input type="text" name="cardExp" class="form-control form-control-sm" placeholder="MM/YY">
+                                        </div>
+                                        <div class="col-6 form-group mb-2">
+                                            <label class="small text-muted mb-1 font-weight-bold">Mã CVV</label>
+                                            <input type="password" name="cardCvv" class="form-control form-control-sm" placeholder="123" maxlength="4">
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label class="small text-muted mb-1 font-weight-bold">Tên chủ thẻ (In hoa không dấu)</label>
+                                        <input type="text" name="cardName" class="form-control form-control-sm" placeholder="NGUYEN VAN A">
+                                    </div>
+                                </div>
+
                             </div>
                             <div class="modal-body pt-0 px-4 pb-4 text-right">
                                 <button type="button" class="btn btn-secondary px-4 mr-2" data-dismiss="modal">Hủy</button>
@@ -276,7 +318,6 @@
                 var gia = parseFloat(document.getElementById("donGiaText").getAttribute("data-gia"));
                 var tongTien = diffDays * gia;
                 
-                // Đọc tỷ lệ % cọc do khách chọn từ ComboBox
                 var tyLeCocSelect = document.getElementById("tyLeCoc");
                 var phanTramCoc = parseFloat(tyLeCocSelect.value) || 30;
                 var tienCoc = (tongTien * phanTramCoc) / 100;
@@ -292,11 +333,18 @@
                 document.getElementById("lblTỷLeText").innerText = "Số tiền đặt cọc (" + phanTramCoc + "%):";
                 document.getElementById("lblTienCoc").innerText = tienCoc.toLocaleString('vi-VN') + " VNĐ";
 
+                // 1. Tạo QR Ngân Hàng VietQR
                 var stk = "1046103431";
                 var bankId = "VCB";
                 var noiDung = "DATPHONG " + "${phongChiTiet.maPhong}";
                 var qrUrl = "https://img.vietqr.io/image/" + bankId + "-" + stk + "-compact2.png?amount=" + tienCoc + "&addInfo=" + encodeURIComponent(noiDung);
                 document.getElementById("qrCodeImg").src = qrUrl;
+
+                // 2. TẠO QR MOMO TỰ ĐỘNG ĐIỀN SỐ TIỀN
+                var sdtMomo = "0901484762"; 
+                var momoPayStr = "2|99|" + sdtMomo + "|||0|0|" + tienCoc + "|" + noiDung + "|qr_only";
+                var qrMomoUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(momoPayStr);
+                document.getElementById("qrMomoImg").src = qrMomoUrl;
 
                 togglePaymentMethod();
 
@@ -306,10 +354,21 @@
             function togglePaymentMethod() {
                 var method = document.getElementById("phuongThucThanhToan").value;
                 var bankDiv = document.getElementById("bankTransferInfo");
+                var momoDiv = document.getElementById("momoInfo");
+                var visaDiv = document.getElementById("visaInfo");
+
+                // Ẩn tất cả trước
+                bankDiv.style.display = "none";
+                momoDiv.style.display = "none";
+                visaDiv.style.display = "none";
+
+                // Hiển thị phần tương ứng với lựa chọn
                 if (method === "ChuyenKhoan") {
                     bankDiv.style.display = "block";
-                } else {
-                    bankDiv.style.display = "none";
+                } else if (method === "Momo") {
+                    momoDiv.style.display = "block";
+                } else if (method === "TheQuocTe") {
+                    visaDiv.style.display = "block";
                 }
             }
         </script>

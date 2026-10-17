@@ -15,18 +15,22 @@ public class KhachHangDAO {
     PreparedStatement ps = null;
     ResultSet rs = null;
 
-    // 1. Tự động sinh MaKH tiếp theo (KH001, KH002...)
+    // 1. Tự động sinh MaKH tiếp theo (KH001, KH002... KH011) - Đã sửa lỗi so sánh chuỗi
     public String generateNextMaKH() {
-        String query = "SELECT MAX(MaKH) FROM KhachHang";
+        String query = "SELECT TOP 1 MaKH FROM KhachHang " +
+                       "ORDER BY CAST(SUBSTRING(MaKH, 3, LEN(MaKH) - 2) AS INT) DESC";
         try {
             conn = DBConnection.getConnection();
             ps = conn.prepareStatement(query);
             rs = ps.executeQuery();
             if (rs.next()) {
                 String maxMa = rs.getString(1);
-                if (maxMa != null && maxMa.startsWith("KH")) {
-                    int number = Integer.parseInt(maxMa.substring(2)) + 1;
-                    return String.format("KH%03d", number);
+                if (maxMa != null) {
+                    maxMa = maxMa.trim(); // Loại bỏ khoảng trắng thừa
+                    if (maxMa.startsWith("KH")) {
+                        int number = Integer.parseInt(maxMa.substring(2)) + 1;
+                        return String.format("KH%03d", number);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -46,7 +50,7 @@ public class KhachHangDAO {
             ps.setString(1, username);
             rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getString("MaKH");
+                return rs.getString("MaKH").trim();
             } else {
                 String newMaKH = generateNextMaKH();
                 insertKhachHang(newMaKH, username, "", "", "", username, "");
@@ -70,7 +74,7 @@ public class KhachHangDAO {
             rs = ps.executeQuery();
             if (rs.next()) {
                 KhachHang kh = new KhachHang(
-                    rs.getString("MaKH"),
+                    rs.getString("MaKH").trim(),
                     rs.getString("HoTen"),
                     rs.getString("SDT"),
                     rs.getString("Email"),
@@ -155,17 +159,17 @@ public class KhachHangDAO {
         return false;
     }
 
-    // 7. Lấy danh sách tất cả khách hàng (Bổ sung Avatar)
+    // 7. Lấy danh sách tất cả khách hàng (Đã sửa sắp xếp theo thứ tự số tăng dần)
     public List<Map<String, String>> getAllKhachHang() {
         List<Map<String, String>> list = new ArrayList<>();
-        String query = "SELECT * FROM KhachHang";
+        String query = "SELECT * FROM KhachHang ORDER BY CAST(SUBSTRING(MaKH, 3, LEN(MaKH) - 2) AS INT) ASC";
         try {
             conn = DBConnection.getConnection();
             ps = conn.prepareStatement(query);
             rs = ps.executeQuery();
             while (rs.next()) {
                 Map<String, String> item = new HashMap<>();
-                item.put("maKH", rs.getString("MaKH"));
+                item.put("maKH", rs.getString("MaKH").trim());
                 item.put("hoTen", rs.getString("HoTen"));
                 item.put("sdt", rs.getString("SDT"));
                 item.put("email", rs.getString("Email"));
@@ -205,11 +209,12 @@ public class KhachHangDAO {
         return 0;
     }
 
-    // 9. Lấy danh sách khách hàng phân trang & tìm kiếm
+    // 9. Lấy danh sách khách hàng phân trang & tìm kiếm (Đã sửa sắp xếp theo thứ tự số tăng dần)
     public List<KhachHang> getKhachHangByPage(String keyword, int offset, int limit) {
         List<KhachHang> list = new ArrayList<>();
         String query = "SELECT * FROM KhachHang WHERE HoTen LIKE ? OR SDT LIKE ? OR Email LIKE ? OR Username LIKE ? " +
-                       "ORDER BY MaKH OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                       "ORDER BY CAST(SUBSTRING(MaKH, 3, LEN(MaKH) - 2) AS INT) ASC " +
+                       "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try {
             conn = DBConnection.getConnection();
             ps = conn.prepareStatement(query);
@@ -223,7 +228,7 @@ public class KhachHangDAO {
             rs = ps.executeQuery();
             while (rs.next()) {
                 KhachHang kh = new KhachHang(
-                    rs.getString("MaKH"),
+                    rs.getString("MaKH").trim(),
                     rs.getString("HoTen"),
                     rs.getString("SDT"),
                     rs.getString("Email"),
