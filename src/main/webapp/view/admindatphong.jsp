@@ -80,9 +80,33 @@
                                 <td class="text-center">${dp.maPhong}</td>
                                 <td>${dp.tenKH}</td>
                                 <td class="text-center">${dp.soLuong}</td>
-                                <td class="text-center">${dp.ngayDat}</td>
-                                <td class="text-center">${dp.ngayNhan}</td>
-                                <td class="text-center">${dp.ngayTra}</td>
+                                <td class="text-center">
+                                    <fmt:parseDate value="${dp.ngayDat}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDat" parseLocale="vi_VN" />
+                                    <c:if test="${empty parsedDat}">
+                                        <fmt:parseDate value="${dp.ngayDat}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedDat" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <fmt:formatDate value="${parsedDat}" pattern="dd/MM/yyyy HH:mm" />
+                                </td>
+                                <td class="text-center">
+                                    <fmt:parseDate value="${dp.ngayNhan}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedNhan" parseLocale="vi_VN" />
+                                    <c:if test="${empty parsedNhan}">
+                                        <fmt:parseDate value="${dp.ngayNhan}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedNhan" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <c:if test="${empty parsedNhan}">
+                                        <fmt:parseDate value="${dp.ngayNhan}" pattern="yyyy-MM-dd" var="parsedNhan" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <fmt:formatDate value="${parsedNhan}" pattern="dd/MM/yyyy" />
+                                </td>
+                                <td class="text-center">
+                                    <fmt:parseDate value="${dp.ngayTra}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedTra" parseLocale="vi_VN" />
+                                    <c:if test="${empty parsedTra}">
+                                        <fmt:parseDate value="${dp.ngayTra}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedTra" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <c:if test="${empty parsedTra}">
+                                        <fmt:parseDate value="${dp.ngayTra}" pattern="yyyy-MM-dd" var="parsedTra" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <fmt:formatDate value="${parsedTra}" pattern="dd/MM/yyyy" />
+                                </td>
                                 <td class="text-end text-success fw-bold">
                                     <fmt:formatNumber value="${dp.tienCoc}" type="number" maxFractionDigits="0" /> đ
                                 </td>
@@ -92,7 +116,6 @@
                                         <c:when test="${dp.trangThaiCoc == 'Đã cọc'}">
                                             <span class="badge bg-success text-white px-2 py-1">Đã cọc</span>
                                         </c:when>
-
                                         <c:when test="${dp.trangThaiCoc == 'Đã hoàn tiền'}">
                                             <span class="badge bg-info text-white px-2 py-1">Đã hoàn tiền</span>
                                         </c:when>
@@ -104,7 +127,7 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
-                                <!-- Cột Tổng tiền (Đã loại bỏ bị lặp) -->
+                                <!-- Cột Tổng tiền -->
                                 <td class="text-end fw-bold">
                                     <fmt:formatNumber value="${dp.tongTien}" type="number" maxFractionDigits="0" /> đ
                                 </td>
@@ -131,29 +154,56 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
+                                <!-- Cột Hành động -->
                                 <td class="text-center">
-                                    <a href="dat-phong?action=edit&maDP=${dp.maDP}" class="btn btn-sm btn-warning" title="Sửa">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <c:choose>
-                                        <c:when test="${dp.trangThai == 'Đã hủy' || dp.trangThai == 'Hoàn thành'}">
-                                            <a href="dat-phong?action=delete&maDP=${dp.maDP}" 
-                                               class="btn btn-sm btn-danger" 
-                                               onclick="return confirm('Bạn có chắc chắn muốn xóa đặt phòng này?');" 
-                                               title="Xóa đơn hàng">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <!-- Khóa nút xóa (disabled) đối với các trạng thái khác -->
-                                            <button class="btn btn-sm btn-secondary" 
-                                                    disabled 
-                                                    style="opacity: 0.5; cursor: not-allowed;" 
-                                                    title="Chỉ có thể xóa khi đơn ở trạng thái 'Đã hủy' hoặc 'Hoàn thành'">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <!-- Nút Xuất Hóa Đơn (Chỉ mở khi đang thuê hoặc hoàn thành) -->
+                                        <c:choose>
+                                            <c:when test="${dp.trangThai == 'Đã thuê' || dp.trangThai == 'Hoàn thành'}">
+                                                <a href="${pageContext.request.contextPath}/admin/export-invoice?maDP=${dp.maDP}" 
+                                                   class="btn btn-sm btn-info text-white" 
+                                                   title="Xuất hóa đơn" 
+                                                   target="_blank">
+                                                    <i class="fas fa-file-invoice"></i>
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button class="btn btn-sm btn-secondary" 
+                                                        disabled 
+                                                        style="opacity: 0.5; cursor: not-allowed;" 
+                                                        title="Chỉ có thể xuất hóa đơn cho đơn 'Đang thuê' hoặc 'Hoàn thành'">
+                                                    <i class="fas fa-file-invoice"></i>
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
+
+                                        <!-- Nút Sửa -->
+                                        <a href="dat-phong?action=edit&maDP=${dp.maDP}" 
+                                           class="btn btn-sm btn-warning" 
+                                           title="Sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <!-- Nút Xóa -->
+                                        <c:choose>
+                                            <c:when test="${dp.trangThai == 'Đã hủy' || dp.trangThai == 'Hoàn thành'}">
+                                                <a href="dat-phong?action=delete&maDP=${dp.maDP}" 
+                                                   class="btn btn-sm btn-danger" 
+                                                   onclick="return confirm('Bạn có chắc chắn muốn xóa đặt phòng này?');" 
+                                                   title="Xóa đơn hàng">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button class="btn btn-sm btn-secondary" 
+                                                        disabled 
+                                                        style="opacity: 0.5; cursor: not-allowed;" 
+                                                        title="Chỉ có thể xóa khi đơn ở trạng thái 'Đã hủy' hoặc 'Hoàn thành'">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -168,9 +218,10 @@
                 </c:choose>
             </tbody>
         </table>
+
+        <!-- Phân trang -->
         <c:if test="${totalPages > 1}">
             <nav aria-label="Page navigation" class="mt-4">
-                <!-- Thêm class custom-pagination vào đây -->
                 <ul class="pagination justify-content-center custom-pagination">
                     <!-- Nút Previous -->
                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
@@ -197,6 +248,7 @@
         </c:if>
     </div>
 </div>
+
 <style>
     .custom-pagination .page-item .page-link {
         color: #212529;

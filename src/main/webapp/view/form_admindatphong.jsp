@@ -1,10 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.time.LocalDate" %>
 
 <%
-    // Xử lý định dạng ngày giờ để hiển thị chính xác vào ô input type="datetime-local" khi ở chế độ sửa
-    DateTimeFormatter htmlFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+    DateTimeFormatter htmlFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     if (request.getAttribute("datPhong") != null) {
         Model.DatPhong dp = (Model.DatPhong) request.getAttribute("datPhong");
         if (dp.getNgayNhan() != null) {
@@ -14,13 +15,13 @@
             request.setAttribute("ngayTraFormatted", dp.getNgayTra().format(htmlFormatter));
         }
     }
+    request.setAttribute("todayStr", LocalDate.now().toString());
 %>
 
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
-                <!-- Tiêu đề nằm bên trái, nút Quay lại nằm bên phải -->
                 <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
                     <h3 class="text-dark fw-bold mb-0">
                         <c:choose>
@@ -37,20 +38,22 @@
                     </a>
                 </div>
 
-                <!-- Form action tự đổi thành add hoặc update -->
                 <form action="${pageContext.request.contextPath}/admin/dat-phong?action=${not empty datPhong ? 'update' : 'add'}" method="POST">
                     <c:if test="${not empty datPhong}">
-                        <input type="hidden" name="tongTien" value="${datPhong.tongTien}">
-                        <input type="hidden" name="tienCoc" value="${datPhong.tienCoc}">
+                        <input type="hidden" name="tongTien" id="hiddenTongTien" value="${datPhong.tongTien}">
+                        <input type="hidden" name="tienCoc" id="hiddenTienCoc" value="${datPhong.tienCoc}">
                     </c:if>
-                    <!-- Mã Đặt Phòng -->
+                    <c:if test="${empty datPhong}">
+                        <input type="hidden" name="tongTien" id="hiddenTongTien" value="0">
+                        <input type="hidden" name="tienCoc" id="hiddenTienCoc" value="0">
+                    </c:if>
+
                     <div class="mb-3">
                         <label for="maDP" class="form-label fw-bold">Mã Đặt Phòng</label>
                         <input type="text" class="form-control bg-light" id="maDP" name="maDP" 
                                value="${not empty datPhong ? datPhong.maDP : nextMaDP}" readonly>
                     </div>
 
-                    <!-- Chọn Khách Hàng -->
                     <div class="mb-3">
                         <label for="maKH" class="form-label fw-bold">Khách Hàng</label>
                         <select class="form-select" id="maKH" name="maKH" required>
@@ -63,28 +66,24 @@
                         </select>
                     </div>
 
-                    <!-- PHÂN TÁCH: Thêm mới dùng Checkbox (Nhiều phòng), Cập nhật dùng Select (1 phòng) -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Phòng Cần Đặt <span class="text-danger">*</span></label>
 
                         <c:choose>
-                            <%-- Khi ở chế độ THÊM MỚI: Hiển thị danh sách checkbox chọn nhiều phòng --%>
                             <c:when test="${empty datPhong}">
                                 <div class="row border p-3 rounded bg-light" style="max-height: 220px; overflow-y: auto;">
                                     <c:forEach var="p" items="${phongList}">
                                         <c:set var="roomStatus" value="${roomStatusMap[p.maPhong]}" />
                                         <div class="col-md-4 mb-2">
                                             <div class="form-check">
-                                                <!-- Khóa checkbox nếu là "Đã xác nhận" hoặc "Đã thuê" -->
                                                 <input class="form-check-input room-checkbox" type="checkbox" name="selectedRooms" value="${p.maPhong}" id="room_${p.maPhong}"
                                                        data-price="${p.gia}" 
                                                        data-status="${roomStatus}"
                                                        <c:if test="${roomStatus == 'Đã xác nhận' || roomStatus == 'Đã thuê'}">disabled</c:if>>
 
-                                                       <label class="form-check-label <c:if test="${roomStatus == 'Đã xác nhận' || roomStatus == 'Đã thuê'}">text-muted</c:if>" for="room_${p.maPhong}">
+                                                <label class="form-check-label <c:if test="${roomStatus == 'Đã xác nhận' || roomStatus == 'Đã thuê'}">text-muted</c:if>" for="room_${p.maPhong}">
                                                     <strong>${p.maPhong}</strong> - ${p.tenPhong}
 
-                                                    <!-- Hiển thị nhãn trạng thái -->
                                                     <c:if test="${roomStatus == 'Đã xác nhận'}">
                                                         <span class="badge bg-success text-white ms-1" style="font-size: 10px;">(Đã xác nhận)</span>
                                                     </c:if>
@@ -102,7 +101,6 @@
                                 <small class="text-muted">* Những phòng có đơn "Đã xác nhận" hoặc "Đã thuê" sẽ bị khóa. Phòng "Chờ xác nhận" có thể chọn nhưng sẽ hiển thị cảnh báo.</small>
                             </c:when>
 
-                            <%-- Khi ở chế độ CẬP NHẬT/SỬA: Hiển thị thẻ select để chọn 1 phòng duy nhất --%>
                             <c:otherwise>
                                 <select class="form-select" id="maPhong" name="maPhong" required>
                                     <option value="" disabled>-- Chọn phòng --</option>
@@ -116,44 +114,62 @@
                         </c:choose>
                     </div>
 
-                    <!-- Ngày Nhận Phòng -->
                     <div class="mb-3">
-                        <label for="ngayNhan" class="form-label fw-bold">Ngày Giờ Nhận Phòng</label>
-                        <input type="datetime-local" class="form-control" id="ngayNhan" name="ngayNhan" 
-                               value="${ngayNhanFormatted}" required>
+                        <label for="ngayNhan" class="form-label fw-bold">Ngày Nhận Phòng</label>
+                        <input type="date" class="form-control" id="ngayNhan" name="ngayNhan" 
+                               value="${ngayNhanFormatted}" min="${todayStr}" required>
                     </div>
 
-                    <!-- Ngày Trả Phòng -->
                     <div class="mb-3">
-                        <label for="ngayTra" class="form-label fw-bold">Ngày Giờ Trả Phòng</label>
-                        <input type="datetime-local" class="form-control" id="ngayTra" name="ngayTra" 
-                               value="${ngayTraFormatted}" required>
+                        <label for="ngayTra" class="form-label fw-bold">Ngày Trả Phòng</label>
+                        <input type="date" class="form-control" id="ngayTra" name="ngayTra" 
+                               value="${ngayTraFormatted}" min="${todayStr}" required>
                     </div>
+
+                    <!-- TỶ LỆ ĐẶT CỌC: Khóa cứng nếu là form sửa đơn (not empty datPhong) vì khách đã chuyển khoản trước -->
+                    <div class="mb-3">
+                        <label for="selectTyLeCoc" class="form-label fw-bold">Tỷ Lệ Đặt Cọc (%)</label>
+                        
+                        <c:set var="isLocked" value="${not empty datPhong}" />
+                        
+                        <select class="form-select ${isLocked ? 'bg-light' : ''}" id="selectTyLeCoc" name="tyLeCoc" ${isLocked ? 'disabled' : ''}>
+                            <option value="10" ${datPhong.tyLeCoc == 10 ? 'selected' : ''}>10%</option>
+                            <option value="20" ${datPhong.tyLeCoc == 20 ? 'selected' : ''}>20%</option>
+                            <option value="30" ${datPhong.tyLeCoc == 30 or empty datPhong.tyLeCoc ? 'selected' : ''}>30% (Mặc định)</option>
+                            <option value="50" ${datPhong.tyLeCoc == 50 ? 'selected' : ''}>50%</option>
+                            <option value="100" ${datPhong.tyLeCoc == 100 ? 'selected' : ''}>100% (Thanh toán trước)</option>
+                        </select>
+
+                        <c:if test="${isLocked}">
+                            <input type="hidden" name="tyLeCoc" value="${datPhong.tyLeCoc}">
+                            <div class="form-text text-danger">
+                                * Khách đã chuyển khoản tiền cọc theo đơn này, hệ thống khóa không cho phép thay đổi tỷ lệ cọc để khớp đối soát ngân hàng.
+                            </div>
+                        </c:if>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="tongTien" class="form-label fw-bold">Tổng Tiền (VNĐ)</label>
-                            <input type="number" class="form-control bg-light" id="tongTien" name="tongTien" 
-                                   value="${not empty datPhong ? datPhong.tongTien : '0'}" readonly>
+                            <label for="tongTienDisplay" class="form-label fw-bold">Tổng Tiền (VNĐ)</label>
+                            <input type="text" class="form-control bg-light fw-bold text-danger" id="tongTienDisplay" 
+                                   value="<fmt:formatNumber value='${not empty datPhong ? datPhong.tongTien : 0}' type='number' groupingUsed='true'/>" readonly>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="tienCoc" class="form-label fw-bold">Tiền Cọc (30% Tổng tiền)</label>
-                            <input type="number" class="form-control bg-light" id="tienCoc" name="tienCoc" 
-                                   value="${not empty datPhong ? datPhong.tienCoc : '0'}" readonly>
+                            <label for="tienCocDisplay" class="form-label fw-bold">Tiền Cọc Thực Tế</label>
+                            <input type="text" class="form-control bg-light fw-bold text-success" id="tienCocDisplay" 
+                                   value="<fmt:formatNumber value='${not empty datPhong ? datPhong.tienCoc : 0}' type='number' groupingUsed='true'/>" readonly>
                         </div>
                     </div>
 
-                    <!-- Trạng Thái Đơn Hàng -->
                     <div class="mb-3">
                         <label for="trangThai" class="form-label fw-bold">Trạng Thái Đơn</label>
                         <select class="form-select" id="trangThai" name="trangThai" required>
                             <c:choose>
-                                <%-- Trường hợp 1: Đang là "Đã thuê" -> Chỉ được giữ nguyên hoặc chuyển sang "Hoàn thành" --%>
                                 <c:when test="${datPhong.trangThai == 'Đã thuê'}">
                                     <option value="Đã thuê" selected>Đã thuê</option>
                                     <option value="Hoàn thành">Hoàn thành</option>
                                 </c:when>
 
-                                <%-- Trường hợp 2: Đang là "Chờ xác nhận" hoặc "Đã xác nhận" -> Có thể chuyển tiếp hoặc bấm Hủy --%>
                                 <c:when test="${datPhong.trangThai == 'Chờ xác nhận' || datPhong.trangThai == 'Đã xác nhận'}">
                                     <option value="Chờ xác nhận" ${datPhong.trangThai == 'Chờ xác nhận' ? 'selected' : ''}>Chờ xác nhận</option>
                                     <option value="Đã xác nhận" ${datPhong.trangThai == 'Đã xác nhận' ? 'selected' : ''}>Đã xác nhận</option>
@@ -161,14 +177,12 @@
                                     <option value="Đã hủy">Đã hủy</option>
                                 </c:when>
 
-                                <%-- Trường hợp 3: Khi thêm mới đơn hàng (Chưa có object datPhong) --%>
                                 <c:when test="${empty datPhong}">
                                     <option value="Chờ xác nhận" selected>Chờ xác nhận</option>
                                     <option value="Đã xác nhận">Đã xác nhận</option>
                                     <option value="Đã thuê">Đã thuê</option>
                                 </c:when>
 
-                                <%-- Trường hợp 4: Nếu đơn đã kết thúc (Hoàn thành hoặc Đã hủy) -> Khóa cứng trạng thái --%>
                                 <c:otherwise>
                                     <option value="${datPhong.trangThai}" selected>${datPhong.trangThai}</option>
                                 </c:otherwise>
@@ -179,7 +193,6 @@
                         </div>
                     </div>
 
-                    <!-- TRẠNG THÁI CỌC (Bổ sung 3 trạng thái mới) -->
                     <div class="mb-4">
                         <label for="trangThaiCoc" class="form-label fw-bold">Trạng Thái Cọc</label>
                         <select class="form-select" id="trangThaiCoc" name="trangThaiCoc" required>
@@ -192,7 +205,6 @@
                         </div>
                     </div>
 
-                    <!-- Nút Thao Tác -->
                     <div class="d-flex justify-content-between align-items-center pt-3 border-top">
                         <a href="${pageContext.request.contextPath}/admin/dat-phong?action=list" class="btn btn-secondary px-4">
                             <i class="fas fa-times me-1"></i> Hủy bỏ
@@ -218,15 +230,19 @@
                 }
             });
         });
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+
         const roomCheckboxes = document.querySelectorAll('input[name="selectedRooms"]');
         const ngayNhanInput = document.getElementById("ngayNhan");
         const ngayTraInput = document.getElementById("ngayTra");
-        const tongTienInput = document.getElementById("tongTien");
-        const tienCocInput = document.getElementById("tienCoc");
+        const selectTyLeCoc = document.getElementById("selectTyLeCoc"); // ComboBox chọn % cọc
+        
+        // Input ẩn để gửi giá trị thật về Server
+        const hiddenTongTien = document.getElementById("hiddenTongTien");
+        const hiddenTienCoc = document.getElementById("hiddenTienCoc");
+        
+        // Input hiển thị định dạng số tiền cho người dùng xem
+        const tongTienDisplay = document.getElementById("tongTienDisplay");
+        const tienCocDisplay = document.getElementById("tienCocDisplay");
 
         function updateTien() {
             let tongGiaPhongMoiNgay = 0;
@@ -238,7 +254,6 @@
                 }
             });
 
-            // Tính số ngày thuê
             let soNgay = 1;
             if (ngayNhanInput.value && ngayTraInput.value) {
                 let d1 = new Date(ngayNhanInput.value);
@@ -251,18 +266,39 @@
             }
 
             let tongTien = tongGiaPhongMoiNgay * soNgay;
-            let tienCoc = tongTien * 0.3;
+            
+            // Lấy tỷ lệ % cọc người dùng chọn từ ComboBox (mặc định 30% nếu chưa chọn)
+            let tyLeCoc = selectTyLeCoc ? parseFloat(selectTyLeCoc.value) / 100 : 0.3;
+            let tienCoc = Math.round(tongTien * tyLeCoc);
 
-            if (tongTienInput)
-                tongTienInput.value = tongTien;
-            if (tienCocInput)
-                tienCocInput.value = Math.round(tienCoc); 
+            // Gán giá trị vào input ẩn để submit form
+            if (hiddenTongTien) hiddenTongTien.value = tongTien;
+            if (hiddenTienCoc) hiddenTienCoc.value = tienCoc;
+
+            // Định dạng hiển thị dấu phẩy phân cách hàng nghìn cho người dùng xem
+            if (tongTienDisplay) {
+                tongTienDisplay.value = tongTien.toLocaleString('en-US');
+            }
+            if (tienCocDisplay) {
+                tienCocDisplay.value = tienCoc.toLocaleString('en-US');
+            }
         }
 
         roomCheckboxes.forEach(cb => cb.addEventListener("change", updateTien));
-        if (ngayNhanInput)
-            ngayNhanInput.addEventListener("change", updateTien);
-        if (ngayTraInput)
-            ngayTraInput.addEventListener("change", updateTien);
+        if (ngayNhanInput) ngayNhanInput.addEventListener("change", updateTien);
+        if (ngayTraInput) ngayTraInput.addEventListener("change", updateTien);
+        
+        // Lắng nghe sự kiện khi Admin đổi lựa chọn trong ComboBox % cọc (chỉ chạy khi không bị disable)
+        if (selectTyLeCoc && !selectTyLeCoc.disabled) {
+            selectTyLeCoc.addEventListener("change", updateTien);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let savedTyLeCoc = "${datPhong.tyLeCoc}";
+        let selectElem = document.getElementById("selectTyLeCoc");
+        if (selectElem && savedTyLeCoc && savedTyLeCoc !== "" && savedTyLeCoc !== "0") {
+            selectElem.value = savedTyLeCoc;
+        }
     });
 </script>

@@ -52,7 +52,7 @@ public class DatPhongDAO {
     public boolean updateDatPhong(DatPhong dp) {
         boolean isUpdated = false;
         String queryDP = "UPDATE DatPhong SET MaPhong = ?, MaKH = ?, NgayNhan = ?, NgayTra = ?, "
-                + "TrangThai = ?, SoLuong = ?, TongTien = ?, TienCoc = ?, TrangThaiCoc = ? WHERE MaDP = ?";
+                + "TrangThai = ?, SoLuong = ?, TongTien = ?, TienCoc = ?, TrangThaiCoc = ?, TyLeCoc = ? WHERE MaDP = ?";
         String queryPhong = "UPDATE Phong SET TinhTrang = ? WHERE MaPhong = ?";
 
         try (Connection conn = new DBConnection().getConnection()) {
@@ -68,15 +68,20 @@ public class DatPhongDAO {
                 psDP.setDouble(7, dp.getTongTien());
                 psDP.setDouble(8, dp.getTienCoc());
                 psDP.setString(9, dp.getTrangThaiCoc());
-                psDP.setString(10, dp.getMaDP());
+                psDP.setInt(10, dp.getTyLeCoc()); // Cập nhật TyLeCoc
+                psDP.setString(11, dp.getMaDP());
                 psDP.executeUpdate();
             }
 
             String trangThaiPhong = "Trống";
             String status = dp.getTrangThai() != null ? dp.getTrangThai().trim() : "";
-            if ("Đã thuê".equals(status) || "Đã xác nhận".equals(status)) {
+            
+            // CHỈ KHI NÀO LÀ "Đã thuê" THÌ MỚI ĐỔI TRẠNG THÁI PHÒNG THÀNH "Đang thuê"
+            if ("Đã thuê".equals(status)) {
                 trangThaiPhong = "Đang thuê";
             } else if ("Hoàn thành".equals(status) || "Đã hủy".equals(status)) {
+                trangThaiPhong = "Trống";
+            } else {
                 trangThaiPhong = "Trống";
             }
 
@@ -309,6 +314,29 @@ public class DatPhongDAO {
             dp.setTrangThaiCoc(rs.getString("TrangThaiCoc"));
         } catch (Exception ignored) {
         }
+        
+        // --- XỬ LÝ ĐỌC VÀ TỰ ĐỘNG TÍNH NGƯỢC TỶ LỆ CỌC NẾU CHƯA CÓ TRONG DB ---
+        try {
+            int tyLe = rs.getInt("TyLeCoc");
+            if (tyLe == 0) {
+                double tongTien = rs.getDouble("TongTien");
+                double tienCoc = rs.getDouble("TienCoc");
+                if (tongTien > 0) {
+                    double calculated = (tienCoc / tongTien) * 100;
+                    if (calculated <= 5) tyLe = 0;
+                    else if (calculated <= 15) tyLe = 10;
+                    else if (calculated <= 25) tyLe = 20;
+                    else if (calculated <= 40) tyLe = 30;
+                    else if (calculated <= 75) tyLe = 50;
+                    else tyLe = 100;
+                } else {
+                    tyLe = 30;
+                }
+            }
+            dp.setTyLeCoc(tyLe);
+        } catch (Exception ignored) {
+            dp.setTyLeCoc(30);
+        }
 
         return dp;
     }
@@ -532,28 +560,8 @@ public class DatPhongDAO {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    DatPhong dp = new DatPhong();
-                    dp.setMaDP(rs.getString("MaDP"));
-                    dp.setMaPhong(rs.getString("MaPhong"));
-                    dp.setMaKH(rs.getString("MaKH"));
+                    DatPhong dp = mapResultSetToDatPhong(rs);
                     dp.setTenPhong(rs.getString("TenPhong")); // Lấy tên phòng ở đây
-
-                    if (rs.getTimestamp("NgayDat") != null) {
-                        dp.setNgayDat(rs.getTimestamp("NgayDat").toLocalDateTime());
-                    }
-                    if (rs.getTimestamp("NgayNhan") != null) {
-                        dp.setNgayNhan(rs.getTimestamp("NgayNhan").toLocalDateTime());
-                    }
-                    if (rs.getTimestamp("NgayTra") != null) {
-                        dp.setNgayTra(rs.getTimestamp("NgayTra").toLocalDateTime());
-                    }
-
-                    dp.setTrangThai(rs.getString("TrangThai"));
-                    dp.setSoLuong(rs.getInt("SoLuong"));
-                    dp.setTongTien(rs.getDouble("TongTien"));
-                    dp.setTienCoc(rs.getDouble("TienCoc"));
-                    dp.setTrangThaiCoc(rs.getString("TrangThaiCoc"));
-
                     list.add(dp);
                 }
             }
@@ -590,8 +598,8 @@ public class DatPhongDAO {
 
     public boolean insertDatPhong(DatPhong dp) {
         boolean isInserted = false;
-        String queryDP = "INSERT INTO DatPhong (MaDP, MaPhong, MaKH, NgayDat, NgayNhan, NgayTra, TrangThai, SoLuong, TongTien, TienCoc, TrangThaiCoc) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String queryDP = "INSERT INTO DatPhong (MaDP, MaPhong, MaKH, NgayDat, NgayNhan, NgayTra, TrangThai, SoLuong, TongTien, TienCoc, TrangThaiCoc, TyLeCoc) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String queryPhong = "UPDATE Phong SET TinhTrang = ? WHERE MaPhong = ?";
 
         try (Connection conn = new DBConnection().getConnection()) {
@@ -609,15 +617,18 @@ public class DatPhongDAO {
                 psDP.setDouble(9, dp.getTongTien());
                 psDP.setDouble(10, dp.getTienCoc());
                 psDP.setString(11, dp.getTrangThaiCoc());
+                psDP.setInt(12, dp.getTyLeCoc()); // Thêm TyLeCoc vào câu lệnh Insert
                 psDP.executeUpdate();
             }
 
             String trangThaiPhong = "Trống";
             String status = dp.getTrangThai() != null ? dp.getTrangThai().trim() : "";
 
-            // Mở rộng điều kiện: cứ có đơn đặt (dù là chờ xác nhận, chờ cọc, đã xác nhận hay đã thuê) thì đổi phòng thành "Đang thuê" / "Hết phòng"
-            if ("Đã thuê".equals(status) || "Đã xác nhận".equals(status) || "Chờ cọc".equals(status) || "Chờ xác nhận".equals(status) || "Đã đặt".equals(status)) {
-                trangThaiPhong = "Đang thuê";
+            // CHỈ KHI NÀO LÀ "Đã thuê" THÌ MỚI ĐỔI TRẠNG THÁI PHÒNG THÀNH "Hết Phòng" / "Đang thuê"
+            if ("Đã thuê".equals(status)) {
+                trangThaiPhong = "Hết Phòng";
+            } else {
+                trangThaiPhong = "Trống";
             }
 
             if (dp.getMaPhong() != null) {

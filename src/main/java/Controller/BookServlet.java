@@ -104,6 +104,13 @@ public class BookServlet extends HttpServlet {
 
             LocalDate ngayNhanDate = LocalDate.parse(ngayNhanStr);
             LocalDate ngayTraDate = LocalDate.parse(ngayTraStr);
+            LocalDate today = LocalDate.now();
+
+            if (ngayNhanDate.isBefore(today) || ngayTraDate.isBefore(today)) {
+                session.setAttribute("errorMessage", "Ngày nhận phòng và ngày trả phòng không được là ngày trong quá khứ!");
+                response.sendRedirect(request.getContextPath() + "/book?maPhong=" + maPhong);
+                return;
+            }
 
             if (ngayTraDate.isBefore(ngayNhanDate) || ngayTraDate.isEqual(ngayNhanDate)) {
                 session.setAttribute("errorMessage", "Ngày trả phòng phải sau ngày nhận phòng ít nhất 1 ngày!");
@@ -114,7 +121,6 @@ public class BookServlet extends HttpServlet {
             LocalDateTime ngayNhanTime = ngayNhanDate.atStartOfDay();
             LocalDateTime ngayTraTime = ngayTraDate.atStartOfDay();
 
-            // KIỂM TRA TRÙNG LỊCH ĐẶT PHÒNG (OVERLAP)
             DatPhongDAO dpDAO = new DatPhongDAO();
             if (dpDAO.isRoomBookedOverlap(maPhong, ngayNhanTime, ngayTraTime)) {
                 session.setAttribute("errorMessage", "Phòng này đã có người đặt trong khoảng thời gian từ " + ngayNhanStr + " đến " + ngayTraStr + ". Vui lòng chọn ngày hoặc phòng khác!");
@@ -124,7 +130,18 @@ public class BookServlet extends HttpServlet {
 
             long soNgayO = ChronoUnit.DAYS.between(ngayNhanDate, ngayTraDate);
             double tongTien = soNgayO * phong.getGia();
-            double tienCoc = tongTien * 0.3;
+
+            // Đọc tỷ lệ % cọc từ form người dùng gửi lên (nếu có lựa chọn, mặc định 30% = 0.3)
+            double tyLeCoc = 0.3;
+            String tyLeCocStr = request.getParameter("tyLeCoc");
+            if (tyLeCocStr != null && !tyLeCocStr.trim().isEmpty()) {
+                try {
+                    tyLeCoc = Double.parseDouble(tyLeCocStr) / 100.0;
+                } catch (NumberFormatException e) {
+                    tyLeCoc = 0.3;
+                }
+            }
+            double tienCoc = tongTien * tyLeCoc;
 
             String maDP = dpDAO.generateNextMaDP();
 

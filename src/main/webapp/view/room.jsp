@@ -98,24 +98,26 @@
                                     </p>
 
                                     <div class="mt-auto d-flex justify-content-between align-items-center w-100">
+                                        <!-- NÚT CHI TIẾT -->
                                         <button type="button" class="btn btn-outline-dark btn-sm font-weight-bold" style="width: 48%;" onclick="openRoomModal('${r.maPhong}')">
                                             Chi Tiết
                                         </button>
 
+                                        <!-- CHỈ KHÓA XÁM NÚT KHI TRẠNG THÁI LÀ 'Đang thuê' -->
                                         <c:choose>
-                                            <c:when test="${r.tinhTrang eq 'Trống'}">
-                                                <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
-                                                   class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
-                                                    Đặt Ngay
-                                                </a>
-                                            </c:when>
-                                            <c:otherwise>
+                                            <c:when test="${r.tinhTrang eq 'Đang thuê'}">
                                                 <button type="button" 
                                                         class="btn btn-secondary btn-sm font-weight-bold" 
                                                         disabled 
                                                         style="width: 48%; opacity: 0.65; cursor: not-allowed;">
                                                     Hết Phòng
                                                 </button>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
+                                                   class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
+                                                    Đặt Ngay
+                                                </a>
                                             </c:otherwise>
                                         </c:choose>
                                     </div>

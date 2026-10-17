@@ -23,10 +23,10 @@ public class MyBookingServlet extends HttpServlet {
         HttpSession session = request.getSession();
         TaiKhoan acc = (TaiKhoan) session.getAttribute("acc"); 
         if (acc == null) {
-            response.sendRedirect("view/login.jsp");
+           
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        
         
         DatPhongDAO dao = new DatPhongDAO();
         List<DatPhong> list = dao.getDatPhongByUsername(acc.getUsername()); 

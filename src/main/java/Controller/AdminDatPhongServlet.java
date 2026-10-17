@@ -139,6 +139,18 @@ public class AdminDatPhongServlet extends HttpServlet {
 
                     String trangThaiCoc = request.getParameter("trangThaiCoc");
 
+                    // Đọc tỷ lệ % cọc do Admin chọn từ form (mặc định 30% nếu không truyền)
+                    int tyLeCocInt = 30;
+                    String tyLeCocStr = request.getParameter("tyLeCoc");
+                    if (tyLeCocStr != null && !tyLeCocStr.trim().isEmpty()) {
+                        try {
+                            tyLeCocInt = Integer.parseInt(tyLeCocStr);
+                        } catch (NumberFormatException e) {
+                            tyLeCocInt = 30;
+                        }
+                    }
+                    double tyLeCoc = tyLeCocInt / 100.0;
+
                     // Thực hiện vòng lặp lưu từng phòng được chọn với giá tiền riêng biệt
                     boolean isInserted = true;
                     for (int i = 0; i < selectedRooms.length; i++) {
@@ -149,7 +161,7 @@ public class AdminDatPhongServlet extends HttpServlet {
                         double roomPricePerDay = (pItem != null) ? pItem.getGia() : 0;
 
                         double tongTienPhong = roomPricePerDay * soNgayThue;
-                        double tienCocPhong = tongTienPhong * 0.3; // Tiền cọc = 30%
+                        double tienCocPhong = tongTienPhong * tyLeCoc; // Tính tiền cọc theo % đã chọn
 
                         DatPhong newDp = new DatPhong();
                         newDp.setMaDP(currentMaDP);
@@ -163,6 +175,7 @@ public class AdminDatPhongServlet extends HttpServlet {
                         newDp.setTongTien(tongTienPhong);
                         newDp.setTienCoc(tienCocPhong);
                         newDp.setTrangThaiCoc(trangThaiCoc);
+                        newDp.setTyLeCoc(tyLeCocInt); // LƯU TỶ LỆ % CỌC VÀO MODEL
 
                         if (!dao.insertDatPhong(newDp)) {
                             isInserted = false;
@@ -206,7 +219,7 @@ public class AdminDatPhongServlet extends HttpServlet {
                     if (oldDatPhong == null) {
                         request.getSession().setAttribute("message", "Cập nhật thất bại! Không tìm thấy mã đặt phòng [" + updMaDP + "].");
                         response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
-                        return; // Chặn an toàn, không rơi xuống case delete
+                        return;
                     }
 
                     String oldTrangThai = oldDatPhong.getTrangThai();
@@ -228,21 +241,16 @@ public class AdminDatPhongServlet extends HttpServlet {
                             return;
                         }
                     }
-                    String updTrangThaiCoc = request.getParameter("trangThaiCoc"); // Lấy giá trị trạng thái cọc từ form gửi lên (nếu có)
+                    String updTrangThaiCoc = request.getParameter("trangThaiCoc");
 
                     oldTrangThai = (oldTrangThai != null) ? oldTrangThai.trim() : "";
                     String updTrangThaiTrim = (updTrangThai != null) ? updTrangThai.trim() : "";
 
-                    System.out.println("=== DEBUG TRANG THAI ===");
-                    System.out.println("Trạng thái cũ trong DB: [" + oldTrangThai + "]");
-                    System.out.println("Trạng thái mới từ Form: [" + updTrangThaiTrim + "]");
-
-// Sử dụng biến đã trim để so sánh an toàn tuyệt đối
                     if ("Đã hủy".equals(updTrangThaiTrim)) {
                         if ("Chờ xác nhận".equals(oldTrangThai)) {
                             updTrangThaiCoc = "Đã hoàn tiền";
                         } else if ("Đã xác nhận".equals(oldTrangThai)) {
-                            updTrangThaiCoc = "Phạt Cọc"; // Phải khớp chữ 'C' viết hoa với file JSP
+                            updTrangThaiCoc = "Phạt Cọc";
                         }
                     }
                     LocalDateTime updNgayNhanLDT = parseDateTime(request.getParameter("ngayNhan"));
@@ -264,8 +272,20 @@ public class AdminDatPhongServlet extends HttpServlet {
                         soNgayThueUpd = (daysBetween > 0) ? daysBetween : 1;
                     }
 
+                    // Đọc tỷ lệ % cọc khi cập nhật
+                    int tyLeCocUpdInt = 30;
+                    String tyLeCocUpdStr = request.getParameter("tyLeCoc");
+                    if (tyLeCocUpdStr != null && !tyLeCocUpdStr.trim().isEmpty()) {
+                        try {
+                            tyLeCocUpdInt = Integer.parseInt(tyLeCocUpdStr);
+                        } catch (NumberFormatException e) {
+                            tyLeCocUpdInt = 30;
+                        }
+                    }
+                    double tyLeCocUpd = tyLeCocUpdInt / 100.0;
+
                     double updTongTien = roomPrice * soNgayThueUpd;
-                    double updTienCoc = updTongTien * 0.3; // 30% tiền cọc
+                    double updTienCoc = updTongTien * tyLeCocUpd; // Tính cọc theo tỷ lệ mới chọn
 
                     DatPhong updDp = new DatPhong();
                     updDp.setMaDP(updMaDP);
@@ -278,6 +298,7 @@ public class AdminDatPhongServlet extends HttpServlet {
                     updDp.setTongTien(updTongTien);
                     updDp.setTienCoc(updTienCoc);
                     updDp.setTrangThaiCoc(updTrangThaiCoc);
+                    updDp.setTyLeCoc(tyLeCocUpdInt); // LƯU TỶ LỆ % CỌC KHI UPDATE
 
                     boolean isUpdated = dao.updateDatPhong(updDp);
                     if (isUpdated) {
@@ -288,32 +309,32 @@ public class AdminDatPhongServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
                     break;
 
-             case "delete":
-    String maDPDelete = request.getParameter("maDP");
-    DatPhong dpDelete = dao.getDatPhongByMaDP(maDPDelete);
+                case "delete":
+                    String maDPDelete = request.getParameter("maDP");
+                    DatPhong dpDelete = dao.getDatPhongByMaDP(maDPDelete);
 
-    if (dpDelete == null) {
-        request.getSession().setAttribute("message", "Không tìm thấy mã đặt phòng cần xóa!");
-        response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
-        return; // Dùng return thay vì break
-    }
+                    if (dpDelete == null) {
+                        request.getSession().setAttribute("message", "Không tìm thấy mã đặt phòng cần xóa!");
+                        response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
+                        return;
+                    }
 
-    String trangThaiDel = dpDelete.getTrangThai() != null ? dpDelete.getTrangThai().trim() : "";
+                    String trangThaiDel = dpDelete.getTrangThai() != null ? dpDelete.getTrangThai().trim() : "";
 
-    if (!"Đã hủy".equalsIgnoreCase(trangThaiDel) && !"Hoàn thành".equalsIgnoreCase(trangThaiDel)) {
-        request.getSession().setAttribute("message", 
-            "Không thể xóa! Đơn đặt phòng [" + maDPDelete + "] đang ở trạng thái '" + trangThaiDel 
-            + "'. Chỉ có thể xóa các đơn đã ở trạng thái 'Đã hủy' hoặc 'Hoàn thành'.");
-    } else {
-        boolean isDeleted = dao.deleteDatPhong(maDPDelete);
-        String msg = isDeleted 
-            ? "Xóa thành công đơn đặt phòng [" + maDPDelete + "]!" 
-            : "Xóa đơn đặt phòng thất bại!";
-        request.getSession().setAttribute("message", msg);
-    }
+                    if (!"Đã hủy".equalsIgnoreCase(trangThaiDel) && !"Hoàn thành".equalsIgnoreCase(trangThaiDel)) {
+                        request.getSession().setAttribute("message", 
+                            "Không thể xóa! Đơn đặt phòng [" + maDPDelete + "] đang ở trạng thái '" + trangThaiDel 
+                            + "'. Chỉ có thể xóa các đơn đã ở trạng thái 'Đã hủy' hoặc 'Hoàn thành'.");
+                    } else {
+                        boolean isDeleted = dao.deleteDatPhong(maDPDelete);
+                        String msg = isDeleted 
+                            ? "Xóa thành công đơn đặt phòng [" + maDPDelete + "]!" 
+                            : "Xóa đơn đặt phòng thất bại!";
+                        request.getSession().setAttribute("message", msg);
+                    }
 
-    response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
-    break;
+                    response.sendRedirect(request.getContextPath() + "/admin/dat-phong?action=list");
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();

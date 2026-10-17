@@ -1,6 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%
+    String today = java.time.LocalDate.now().toString();
+%>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -58,7 +61,6 @@
                     </div>
                 </div>
                 <%
-                    // Xóa message khỏi session sau khi đã hiển thị để tránh bị lặp lại khi tải lại trang
                     session.removeAttribute("message");
                 %>
             </c:if>
@@ -114,12 +116,25 @@
                                 <div class="row">
                                     <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-bold">Ngày nhận phòng (Check-in):</label>
-                                        <input type="date" class="form-control" id="ngayNhan" name="ngayNhan" required>
+                                        <input type="date" class="form-control" id="ngayNhan" name="ngayNhan" min="<%= today %>" required onchange="updateMinCheckOut()">
                                     </div>
                                     <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-bold">Ngày trả phòng (Check-out):</label>
-                                        <input type="date" class="form-control" id="ngayTra" name="ngayTra" required>
+                                        <input type="date" class="form-control" id="ngayTra" name="ngayTra" min="<%= today %>" required>
                                     </div>
+                                </div>
+
+                                <!-- THÊM COMBOBOX CHỌN TỶ LỆ % ĐẶT CỌC -->
+                                <div class="form-group mb-3">
+                                    <label class="font-weight-bold">Tỷ lệ đặt cọc (%):</label>
+                                    <select class="form-control" id="tyLeCoc" name="tyLeCoc">
+                                        
+                                        <option value="10">10%</option>
+                                        <option value="20">20%</option>
+                                        <option value="30" selected>30% (Mặc định)</option>
+                                        <option value="50">50%</option>
+                                        <option value="100">100% (Thanh toán trước)</option>
+                                    </select>
                                 </div>
 
                                 <div class="form-group mb-4">
@@ -150,7 +165,7 @@
                                     <p class="mb-1"><strong>Khách hàng:</strong> <span id="lblHoTen" class="text-dark font-weight-bold"></span></p>
                                     <p class="mb-1"><strong>Số điện thoại:</strong> <span id="lblSdt" class="text-dark"></span></p>
                                     <p class="mb-1"><strong>Phòng:</strong> <span class="text-dark">${phongChiTiet.tenPhong}</span></p>
-                                    <p class="mb-1"><strong>Thời gian:</strong> <span id="lblThoiGian" class="text-primary font-weight-bold"></span></p>
+                                    <p class="mb-1"><strong>Thời gian:</strong> <span id="lblThoiGian" class="text-danger font-weight-bold"></span></p>
                                 </div>
                                 <hr>
                                 <div class="bg-light p-3 rounded mb-3">
@@ -163,7 +178,7 @@
                                         <strong id="lblTongTien" class="text-dark">0 VNĐ</strong>
                                     </div>
                                     <div class="d-flex justify-content-between text-danger font-weight-bold" style="font-size: 16px;">
-                                        <span>Số tiền đặt cọc (30%):</span>
+                                        <span id="lblTỷLeText">Số tiền đặt cọc (30%):</span>
                                         <strong id="lblTienCoc">0 VNĐ</strong>
                                     </div>
                                 </div>
@@ -208,58 +223,95 @@
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
         <script src="${pageContext.request.contextPath}/js/custom.js"></script>
         <script>
-                                        function openDepositModal() {
-                                            var hoTen = document.getElementById("hoTen").value.trim();
-                                            var sdt = document.getElementById("sdt").value.trim();
-                                            var ngayNhan = document.getElementById("ngayNhan").value;
-                                            var ngayTra = document.getElementById("ngayTra").value;
+            function updateMinCheckOut() {
+                var ngayNhan = document.getElementById("ngayNhan").value;
+                var ngayTraInput = document.getElementById("ngayTra");
+                if (ngayNhan) {
+                    var nextDay = new Date(ngayNhan);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    var nextDayStr = nextDay.toISOString().split('T')[0];
+                    ngayTraInput.min = nextDayStr;
+                    if (ngayTraInput.value && ngayTraInput.value <= ngayNhan) {
+                        ngayTraInput.value = nextDayStr;
+                    }
+                }
+            }
 
-                                            if (!hoTen || !sdt || !ngayNhan || !ngayTra) {
-                                                alert("Vui lòng điền đầy đủ họ tên, số điện thoại và ngày nhận/trả phòng!");
-                                                return;
-                                            }
+            function formatDateVN(dateString) {
+                if (!dateString) return "";
+                var parts = dateString.split("-");
+                if (parts.length === 3) {
+                    return parts[2] + "/" + parts[1] + "/" + parts[0];
+                }
+                return dateString;
+            }
 
-                                            var dNhan = new Date(ngayNhan);
-                                            var dTra = new Date(ngayTra);
-                                            if (dTra <= dNhan) {
-                                                alert("Ngày trả phòng phải sau ngày nhận phòng ít nhất 1 ngày!");
-                                                return;
-                                            }
+            function openDepositModal() {
+                var hoTen = document.getElementById("hoTen").value.trim();
+                var sdt = document.getElementById("sdt").value.trim();
+                var ngayNhan = document.getElementById("ngayNhan").value;
+                var ngayTra = document.getElementById("ngayTra").value;
+                var todayStr = "<%= today %>";
 
-                                            var diffTime = Math.abs(dTra - dNhan);
-                                            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (!hoTen || !sdt || !ngayNhan || !ngayTra) {
+                    alert("Vui lòng điền đầy đủ họ tên, số điện thoại và ngày nhận/trả phòng!");
+                    return;
+                }
 
-                                            var gia = parseFloat(document.getElementById("donGiaText").getAttribute("data-gia"));
-                                            var tongTien = diffDays * gia;
-                                            var tienCoc = tongTien * 0.3;
+                if (ngayNhan < todayStr || ngayTra < todayStr) {
+                    alert("Không được chọn ngày nhận hoặc trả phòng trong quá khứ!");
+                    return;
+                }
 
-                                            document.getElementById("lblHoTen").innerText = hoTen;
-                                            document.getElementById("lblSdt").innerText = sdt;
-                                            document.getElementById("lblThoiGian").innerText = ngayNhan + " đến " + ngayTra;
-                                            document.getElementById("lblSoNgay").innerText = diffDays + " ngày";
-                                            document.getElementById("lblTongTien").innerText = tongTien.toLocaleString('vi-VN') + " VNĐ";
-                                            document.getElementById("lblTienCoc").innerText = tienCoc.toLocaleString('vi-VN') + " VNĐ";
+                var dNhan = new Date(ngayNhan);
+                var dTra = new Date(ngayTra);
+                if (dTra <= dNhan) {
+                    alert("Ngày trả phòng phải sau ngày nhận phòng ít nhất 1 ngày!");
+                    return;
+                }
 
-                                            var stk = "1046103431";
-                                            var bankId = "VCB";
-                                            var noiDung = "DATPHONG " + "${phongChiTiet.maPhong}";
-                                            var qrUrl = "https://img.vietqr.io/image/" + bankId + "-" + stk + "-compact2.png?amount=" + tienCoc + "&addInfo=" + encodeURIComponent(noiDung);
-                                            document.getElementById("qrCodeImg").src = qrUrl;
+                var diffTime = Math.abs(dTra - dNhan);
+                var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                                            togglePaymentMethod();
+                var gia = parseFloat(document.getElementById("donGiaText").getAttribute("data-gia"));
+                var tongTien = diffDays * gia;
+                
+                // Đọc tỷ lệ % cọc do khách chọn từ ComboBox
+                var tyLeCocSelect = document.getElementById("tyLeCoc");
+                var phanTramCoc = parseFloat(tyLeCocSelect.value) || 30;
+                var tienCoc = (tongTien * phanTramCoc) / 100;
 
-                                            $('#depositModal').modal('show');
-                                        }
+                var ngayNhanVN = formatDateVN(ngayNhan);
+                var ngayTraVN = formatDateVN(ngayTra);
 
-                                        function togglePaymentMethod() {
-                                            var method = document.getElementById("phuongThucThanhToan").value;
-                                            var bankDiv = document.getElementById("bankTransferInfo");
-                                            if (method === "ChuyenKhoan") {
-                                                bankDiv.style.display = "block";
-                                            } else {
-                                                bankDiv.style.display = "none";
-                                            }
-                                        }
+                document.getElementById("lblHoTen").innerText = hoTen;
+                document.getElementById("lblSdt").innerText = sdt;
+                document.getElementById("lblThoiGian").innerText = ngayNhanVN + " đến " + ngayTraVN;
+                document.getElementById("lblSoNgay").innerText = diffDays + " ngày";
+                document.getElementById("lblTongTien").innerText = tongTien.toLocaleString('vi-VN') + " VNĐ";
+                document.getElementById("lblTỷLeText").innerText = "Số tiền đặt cọc (" + phanTramCoc + "%):";
+                document.getElementById("lblTienCoc").innerText = tienCoc.toLocaleString('vi-VN') + " VNĐ";
+
+                var stk = "1046103431";
+                var bankId = "VCB";
+                var noiDung = "DATPHONG " + "${phongChiTiet.maPhong}";
+                var qrUrl = "https://img.vietqr.io/image/" + bankId + "-" + stk + "-compact2.png?amount=" + tienCoc + "&addInfo=" + encodeURIComponent(noiDung);
+                document.getElementById("qrCodeImg").src = qrUrl;
+
+                togglePaymentMethod();
+
+                $('#depositModal').modal('show');
+            }
+
+            function togglePaymentMethod() {
+                var method = document.getElementById("phuongThucThanhToan").value;
+                var bankDiv = document.getElementById("bankTransferInfo");
+                if (method === "ChuyenKhoan") {
+                    bankDiv.style.display = "block";
+                } else {
+                    bankDiv.style.display = "none";
+                }
+            }
         </script>
     </body>
 </html>

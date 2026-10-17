@@ -10,7 +10,6 @@
     <script>
         function confirmCancel(maDP, trangThai) {
             let msg = "";
-            // Kiểm tra trạng thái để hiển thị thông báo phù hợp
             if (trangThai.trim() === 'Đã xác nhận' || trangThai.trim() === '1') {
                 msg = "⚠️ Đơn phòng này ĐÃ ĐƯỢC XÁC NHẬN!\nNếu hủy, bạn SẼ BỊ PHẠT CỌC.\nBạn có chắc chắn muốn hủy không?";
             } else if (trangThai.trim() === 'Chờ xác nhận' || trangThai.trim() === '0') {
@@ -29,7 +28,6 @@
     <div class="container my-5">
         <h2 class="text-center mb-4 fw-bold text-danger">Tình Trạng Xử Lý Đặt Phòng Của Bạn</h2>
         
-        <!-- Hiển thị thông báo thành công hoặc lỗi -->
         <c:if test="${not empty sessionScope.message}">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 ${sessionScope.message}
@@ -56,6 +54,7 @@
                             <th>Ngày Nhận</th>
                             <th>Ngày Trả</th>
                             <th>Tổng Tiền</th>
+                            <th>Trạng Thái Cọc</th>
                             <th>Tình Trạng Xử Lý</th>
                             <th>Hành Động</th>
                         </tr>
@@ -63,18 +62,58 @@
                     <tbody>
                         <c:if test="${empty myBookings}">
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">Bạn chưa có đơn đặt phòng nào.</td>
+                                <td colspan="9" class="text-center text-muted py-4">Bạn chưa có đơn đặt phòng nào.</td>
                             </tr>
                         </c:if>
                         <c:forEach var="b" items="${myBookings}">
                             <tr>
                                 <td class="fw-bold">${b.maDP}</td>
                                 <td>${b.tenPhong}</td>
-                                <td>${b.ngayDat}</td>
-                                <td>${b.ngayNhan}</td>
-                                <td>${b.ngayTra}</td>
+                                <td>
+                                    <fmt:parseDate value="${b.ngayDat}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDat" parseLocale="vi_VN" />
+                                    <c:if test="${empty parsedDat}">
+                                        <fmt:parseDate value="${b.ngayDat}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedDat" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <fmt:formatDate value="${parsedDat}" pattern="dd/MM/yyyy HH:mm" />
+                                </td>
+                                <td>
+                                    <fmt:parseDate value="${b.ngayNhan}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedNhan" parseLocale="vi_VN" />
+                                    <c:if test="${empty parsedNhan}">
+                                        <fmt:parseDate value="${b.ngayNhan}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedNhan" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <c:if test="${empty parsedNhan}">
+                                        <fmt:parseDate value="${b.ngayNhan}" pattern="yyyy-MM-dd" var="parsedNhan" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <fmt:formatDate value="${parsedNhan}" pattern="dd/MM/yyyy" />
+                                </td>
+                                <td>
+                                    <fmt:parseDate value="${b.ngayTra}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedTra" parseLocale="vi_VN" />
+                                    <c:if test="${empty parsedTra}">
+                                        <fmt:parseDate value="${b.ngayTra}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedTra" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <c:if test="${empty parsedTra}">
+                                        <fmt:parseDate value="${b.ngayTra}" pattern="yyyy-MM-dd" var="parsedTra" parseLocale="vi_VN" />
+                                    </c:if>
+                                    <fmt:formatDate value="${parsedTra}" pattern="dd/MM/yyyy" />
+                                </td>
                                 <td style="color: red; font-weight: bold;">
                                     <fmt:formatNumber value="${b.tongTien}" type="number" groupingUsed="true"/> VNĐ
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${b.trangThaiCoc == 'Đã cọc'}">
+                                            <span class="badge bg-success">Đã cọc</span>
+                                        </c:when>
+                                        <c:when test="${b.trangThaiCoc == 'Đã hoàn tiền'}">
+                                            <span class="badge bg-info text-dark">Đã hoàn tiền</span>
+                                        </c:when>
+                                        <c:when test="${b.trangThaiCoc == 'Phạt Cọc'}">
+                                            <span class="badge bg-danger">Phạt Cọc</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge bg-warning text-dark">Chưa cập nhật</span>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </td>
                                 <td>
                                     <c:choose>
@@ -99,7 +138,6 @@
                                     </c:choose>
                                 </td>
                                 <td>
-                                    <!-- Chỉ hiển thị nút hủy nếu đơn chưa bị hủy và chưa hoàn thành -->
                                     <c:if test="${b.trangThai != 'Đã hủy' && b.trangThai != 'Hoàn thành' && b.trangThai != 'Đã thuê'}">
                                         <button type="button" class="btn btn-outline-danger btn-sm" 
                                                 onclick="confirmCancel('${b.maDP}', '${b.trangThai}')">

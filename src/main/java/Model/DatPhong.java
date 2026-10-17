@@ -18,6 +18,7 @@ public class DatPhong {
     private double tienCoc;
     private String trangThaiCoc;
     private String tenPhong;
+    private int tyLeCoc; // Thêm trường lưu tỷ lệ phần trăm đặt cọc (Ví dụ: 10, 20, 30, 50, 100)
 
     public DatPhong() {
     }
@@ -126,7 +127,6 @@ public class DatPhong {
     public void setTrangThaiCoc(String trangThaiCoc) {
         this.trangThaiCoc = trangThaiCoc;
     }
-    // Getter và Setter
 
     public String getTenPhong() {
         return tenPhong;
@@ -134,5 +134,14 @@ public class DatPhong {
 
     public void setTenPhong(String tenPhong) {
         this.tenPhong = tenPhong;
+    }
+
+    // Getter và Setter cho tỷ lệ % cọc
+    public int getTyLeCoc() {
+        return tyLeCoc;
+    }
+
+    public void setTyLeCoc(int tyLeCoc) {
+        this.tyLeCoc = tyLeCoc;
     }
 }

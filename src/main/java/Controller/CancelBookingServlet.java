@@ -1,6 +1,7 @@
 package Controller;
 
 import Dao.DatPhongDAO;
+import Dao.PhongDAO;
 import Model.DatPhong;
 import Model.TaiKhoan;
 import jakarta.servlet.ServletException;
@@ -29,21 +30,22 @@ public class CancelBookingServlet extends HttpServlet {
         if (maDP != null && !maDP.trim().isEmpty()) {
             DatPhongDAO dao = new DatPhongDAO();
             
-            // 1. Lấy thông tin đơn đặt phòng để biết trạng thái hiện tại trước khi hủy
             DatPhong dp = dao.getDatPhongByMaDP(maDP);
             if (dp != null) {
                 String oldTrangThai = dp.getTrangThai() != null ? dp.getTrangThai().trim() : "";
-                String trangThaiCocMoi = "Đã hoàn tiền"; // Mặc định nếu hủy ở Chờ xác nhận
+                String trangThaiCocMoi = "Đã hoàn tiền";
                 
-                // 2. Nếu hủy lúc đã xác nhận -> Phạt Cọc
                 if ("Đã xác nhận".equals(oldTrangThai)) {
                     trangThaiCocMoi = "Phạt Cọc";
                 }
                 
-                // 3. Thực hiện cập nhật cả trạng thái đơn ("Đã hủy") và trạng thái cọc tương ứng
                 boolean updated = dao.updateTrangThaiVaCoc(maDP, "Đã hủy", trangThaiCocMoi);
                 
                 if (updated) {
+                    // Sửa thành updateTrangThaiPhong cho khớp với PhongDAO.java có sẵn của bạn
+                    PhongDAO phongDAO = new PhongDAO();
+                    phongDAO.updateTrangThaiPhong(dp.getMaPhong(), "Trống");
+
                     session.setAttribute("message", "Đã hủy đơn đặt phòng thành công! (Trạng thái cọc: " + trangThaiCocMoi + ")");
                 } else {
                     session.setAttribute("errorMessage", "Không thể hủy đơn phòng này!");
