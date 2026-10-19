@@ -9,35 +9,18 @@
         padding: 0 !important;
     }
 
-   
     .banner .carousel-item img {
         width: 100% !important;
         max-width: 100% !important;
         object-fit: fill;
     }
 
-   
     .booking_ocline {
         width: 100% !important;
         left: 0;
         right: 0;
     }
 
-   
-    .glass-booking-container {
-        position: relative;
-        background: rgba(15, 23, 42, 0.45);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 24px;
-        padding: 40px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        max-width: 480px;
-        width: 100%;
-        color: #fff;
-        overflow: hidden;
-    }
     .glass-booking-container {
         position: relative;
         background: rgba(15, 23, 42, 0.45);
@@ -128,7 +111,6 @@
         margin-top: 10px;
     }
 
- 
     .glass-btn:hover {
         background: rgba(239, 68, 68, 0.25); 
         border-color: #ff4d4d; 
@@ -149,8 +131,6 @@
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <img class="first-slide" src="${pageContext.request.contextPath}/images/banner1.jpg" alt="First slide">
-                <div class="container">
-                </div>
             </div>
             <div class="carousel-item">
                 <img class="second-slide" src="${pageContext.request.contextPath}/images/banner2.jpg" alt="Second slide">
@@ -172,28 +152,28 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-5">
-                   <div class="glass-booking-container">
-    <h1>Book a Room Online</h1>
-    <p class="glass-subtitle">Chọn ngày nhận và trả phòng để bắt đầu</p>
-    
-    <form class="book_now">
-        <div class="row">
-            <div class="col-md-12 mb-3" style="position: relative;">
-                <input class="online_book glass-input" placeholder="Arrival (dd/mm/yyyy)" type="text" name="arrival">
-                <img class="date_cua" src="${pageContext.request.contextPath}/images/date.png" style="position: absolute; right: 20px; top: 30%; transform: translateY(-50%); pointer-events: none; filter: invert(1); opacity: 0.75;">
-            </div>
-            
-            <div class="col-md-12 mb-3" style="position: relative;">
-                <input class="online_book glass-input" placeholder="Departure (dd/mm/yyyy)" type="text" name="departure">
-                <img class="date_cua" src="${pageContext.request.contextPath}/images/date.png" style="position: absolute; right: 20px; top: 30%; transform: translateY(-50%); pointer-events: none; filter: invert(1); opacity: 0.75;">
-            </div>
-            
-            <div class="col-md-12">
-                <button class="book_btn glass-btn" type="submit">Book Now</button>
-            </div>
-        </div>
-    </form>
-</div>
+                    <div class="glass-booking-container">
+                        <h1>Book a Room Online</h1>
+                        <p class="glass-subtitle">Chọn ngày nhận và trả phòng để bắt đầu</p>
+                        
+                        <form class="book_now" action="${pageContext.request.contextPath}/Trang-chu" method="GET">
+                            <div class="row">
+                                <div class="col-md-12 mb-3" style="position: relative;">
+                                    <input class="online_book glass-input" placeholder="Arrival (dd/mm/yyyy)" type="text" name="arrival" value="${param.arrival}" autocomplete="off">
+                                    <img class="date_cua" src="${pageContext.request.contextPath}/images/date.png" style="position: absolute; right: 20px; top: 30%; transform: translateY(-50%); pointer-events: none; filter: invert(1); opacity: 0.75;">
+                                </div>
+                                
+                                <div class="col-md-12 mb-3" style="position: relative;">
+                                    <input class="online_book glass-input" placeholder="Departure (dd/mm/yyyy)" type="text" name="departure" value="${param.departure}" autocomplete="off">
+                                    <img class="date_cua" src="${pageContext.request.contextPath}/images/date.png" style="position: absolute; right: 20px; top: 30%; transform: translateY(-50%); pointer-events: none; filter: invert(1); opacity: 0.75;">
+                                </div>
+                                
+                                <div class="col-md-12">
+                                    <button class="book_btn glass-btn" type="submit">Book Now</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

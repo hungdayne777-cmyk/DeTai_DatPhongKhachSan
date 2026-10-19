@@ -37,6 +37,24 @@ public class BookServlet extends HttpServlet {
             maPhong = maPhong.replaceAll("\\s+", "");
         }
 
+        // 1. Lấy giá trị ngày nhận và trả phòng từ URL
+        String arrival = request.getParameter("arrival");
+        String departure = request.getParameter("departure");
+
+        // 2. Chuyển định dạng từ dd/MM/yyyy sang yyyy-MM-dd để khớp với <input type="date">
+        if (arrival != null && arrival.contains("/")) {
+            String[] parts = arrival.split("/");
+            if (parts.length == 3) {
+                arrival = parts[2] + "-" + parts[1] + "-" + parts[0];
+            }
+        }
+        if (departure != null && departure.contains("/")) {
+            String[] parts = departure.split("/");
+            if (parts.length == 3) {
+                departure = parts[2] + "-" + parts[1] + "-" + parts[0];
+            }
+        }
+
         PhongDAO phongDAO = new PhongDAO();
         Phong phong = phongDAO.getPhongById(maPhong);
 
@@ -51,6 +69,10 @@ public class BookServlet extends HttpServlet {
         if (kh != null) {
             request.setAttribute("khachHang", kh);
         }
+
+        // 3. Gửi ngày đã chuẩn hóa sang trang book_room.jsp
+        request.setAttribute("arrival", arrival);
+        request.setAttribute("departure", departure);
 
         request.setAttribute("phongChiTiet", phong);
         request.getRequestDispatcher("/view/book_room.jsp").forward(request, response);
@@ -131,7 +153,7 @@ public class BookServlet extends HttpServlet {
             long soNgayO = ChronoUnit.DAYS.between(ngayNhanDate, ngayTraDate);
             double tongTien = soNgayO * phong.getGia();
 
-            // Đọc tỷ lệ % cọc từ form người dùng gửi lên (nếu có lựa chọn, mặc định 30% = 0.3)
+            // Đọc tỷ lệ % cọc từ form người dùng gửi lên (mặc định 30% = 0.3)
             double tyLeCoc = 0.3;
             String tyLeCocStr = request.getParameter("tyLeCoc");
             if (tyLeCocStr != null && !tyLeCocStr.trim().isEmpty()) {

@@ -116,11 +116,11 @@
                                 <div class="row">
                                     <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-bold">Ngày nhận phòng (Check-in):</label>
-                                        <input type="date" class="form-control" id="ngayNhan" name="ngayNhan" min="<%= today %>" required onchange="updateMinCheckOut()">
+                                        <input type="date" class="form-control" id="ngayNhan" name="ngayNhan" value="${arrival}" min="<%= today %>" required onchange="updateMinCheckOut()">
                                     </div>
                                     <div class="col-md-6 form-group mb-3">
                                         <label class="font-weight-bold">Ngày trả phòng (Check-out):</label>
-                                        <input type="date" class="form-control" id="ngayTra" name="ngayTra" min="<%= today %>" required>
+                                        <input type="date" class="form-control" id="ngayTra" name="ngayTra" value="${departure}" min="<%= today %>" required>
                                     </div>
                                 </div>
 
@@ -207,23 +207,20 @@
                                 </div>
 
                                <!-- 2. THÔNG TIN VÍ ĐIỆN TỬ MOMO -->
-<div id="momoInfo" class="border p-3 rounded mb-3 bg-white" style="display: none;">
-    <h6 class="font-weight-bold text-center mb-3" style="color: #ae2070 !important;"><i class="fa fa-mobile mr-1"></i> Quét Mã QR Ví MoMo</h6>
-    <div class="row align-items-center">
-        <div class="col-md-5 text-center mb-3 mb-md-0">
-            <img id="qrMomoImg" src="" alt="Mã QR MoMo" class="img-fluid rounded border shadow-sm" style="max-height: 185px; width: 100%; object-fit: contain;">
-        </div>
-        <div class="col-md-7 small">
-            <p class="mb-1"><strong>Ví điện tử:</strong> MoMo</p>
-            
-            <!-- THAY SỐ DƯỚI ĐÂY -->
-            <p class="mb-1"><strong>Số điện thoại MoMo:</strong> <span class="text-dark font-weight-bold">0901484762</span></p>
-            
-            <p class="mb-1"><strong>Chủ tài khoản:</strong> <span class="text-dark font-weight-bold">KHACH SAN</span></p>
-            <p class="mb-1"><strong>Nội dung:</strong> <span class="text-danger font-weight-bold">DATPHONG ${phongChiTiet.maPhong}</span></p>
-        </div>
-    </div>
-</div>
+                                <div id="momoInfo" class="border p-3 rounded mb-3 bg-white" style="display: none;">
+                                    <h6 class="font-weight-bold text-center mb-3" style="color: #ae2070 !important;"><i class="fa fa-mobile mr-1"></i> Quét Mã QR Ví MoMo</h6>
+                                    <div class="row align-items-center">
+                                        <div class="col-md-5 text-center mb-3 mb-md-0">
+                                            <img id="qrMomoImg" src="" alt="Mã QR MoMo" class="img-fluid rounded border shadow-sm" style="max-height: 185px; width: 100%; object-fit: contain;">
+                                        </div>
+                                        <div class="col-md-7 small">
+                                            <p class="mb-1"><strong>Ví điện tử:</strong> MoMo</p>
+                                            <p class="mb-1"><strong>Số điện thoại MoMo:</strong> <span class="text-dark font-weight-bold">0901484762</span></p>
+                                            <p class="mb-1"><strong>Chủ tài khoản:</strong> <span class="text-dark font-weight-bold">KHACH SAN</span></p>
+                                            <p class="mb-1"><strong>Nội dung:</strong> <span class="text-danger font-weight-bold">DATPHONG ${phongChiTiet.maPhong}</span></p>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- 3. THÔNG TIN THẺ VISA / MASTERCARD -->
                                 <div id="visaInfo" class="border p-3 rounded mb-3 bg-white" style="display: none;">

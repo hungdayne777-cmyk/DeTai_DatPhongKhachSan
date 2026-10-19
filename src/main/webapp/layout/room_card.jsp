@@ -76,7 +76,7 @@
                                 <!-- Nút Đặt Ngay -->
                                 <c:choose>
                                     <c:when test="${r.tinhTrang eq 'Trống'}">
-                                        <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
+                                        <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}&arrival=${param.arrival}&departure=${param.departure}" 
                                            class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
                                             Đặt Ngay
                                         </a>
@@ -152,8 +152,8 @@
 
                             <c:choose>
                                 <c:when test="${r.tinhTrang eq 'Trống'}">
-                                    <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}" 
-                                       class="btn btn-danger btn-sm font-weight-bold" style="width: 48%;">
+                                    <a href="${pageContext.request.contextPath}/book?maPhong=${r.maPhong}&arrival=${param.arrival}&departure=${param.departure}" 
+                                       class="btn btn-danger btn-sm font-weight-bold">
                                         Đặt Ngay
                                     </a>
                                 </c:when>

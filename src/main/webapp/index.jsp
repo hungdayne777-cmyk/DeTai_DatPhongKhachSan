@@ -416,12 +416,38 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 
         <script>
-            // Kích hoạt bảng lịch cho tất cả các ô input có class là .online_book
-            flatpickr(".online_book", {
-                dateFormat: "d/m/Y", // Định dạng ngày/tháng/năm
-                allowInput: true, // Cho phép gõ tay trực tiếp nếu muốn
-               
-            });
-        </script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // 1. Khởi tạo ô Departure trước
+        var departurePicker = flatpickr("input[name='departure']", {
+            dateFormat: "d/m/Y",
+            allowInput: true,
+            minDate: "today"
+        });
+
+        // 2. Khởi tạo ô Arrival và ràng buộc với Departure
+        flatpickr("input[name='arrival']", {
+            dateFormat: "d/m/Y",
+            allowInput: true,
+            minDate: "today",
+            onChange: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length > 0) {
+                    // Tự động tính ngày tiếp theo (Next Day)
+                    var checkInDate = selectedDates[0];
+                    var nextDay = new Date(checkInDate);
+                    nextDay.setDate(nextDay.getDate() + 1);
+
+                    // Cập nhật minDate cho ô Departure không cho chọn lùi
+                    departurePicker.set("minDate", nextDay);
+
+                    // Nếu ngày Departure hiện tại nhỏ hơn ngày Check-in + 1 ngày thì tự động đổi ngày
+                    var currentDepDate = departurePicker.selectedDates[0];
+                    if (!currentDepDate || currentDepDate <= checkInDate) {
+                        departurePicker.setDate(nextDay, true);
+                    }
+                }
+            }
+        });
+    });
+</script>
     </body>
 </html>
