@@ -323,6 +323,50 @@ public class PhongDAO {
         }
         return count;
     }
+    
+    public List<Phong> getRoomsByPageAndSort(int offset, int noOfRecords, String sortOrder) {
+    List<Phong> list = new ArrayList<>();
+    StringBuilder sql = new StringBuilder(
+        "SELECT p.MaPhong, p.TenPhong, p.MaLoai, lp.TenLoai, lp.MoTa, p.Gia, p.TinhTrang, p.hinhAnh " +
+        "FROM Phong p LEFT JOIN LoaiPhong lp ON p.MaLoai = lp.MaLoai WHERE 1=1"
+    );
+
+    // Xử lý sắp xếp theo giá
+    if ("asc".equalsIgnoreCase(sortOrder)) {
+        sql.append(" ORDER BY p.Gia ASC");
+    } else if ("desc".equalsIgnoreCase(sortOrder)) {
+        sql.append(" ORDER BY p.Gia DESC");
+    } else {
+        sql.append(" ORDER BY p.TenPhong ASC"); // Mặc định sắp xếp theo tên
+    }
+
+    sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+    try (Connection conn = new DBConnection().getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        
+        ps.setInt(1, offset);
+        ps.setInt(2, noOfRecords);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Phong p = new Phong();
+                p.setMaPhong(rs.getString("MaPhong"));
+                p.setTenPhong(rs.getString("TenPhong"));
+                p.setMaLoai(rs.getString("MaLoai"));
+                p.setTenLoai(rs.getString("TenLoai"));
+                p.setMoTa(rs.getString("MoTa"));
+                p.setGia(rs.getDouble("Gia"));
+                p.setTinhTrang(rs.getString("TinhTrang"));
+                p.setHinhAnh(rs.getString("hinhAnh"));
+                list.add(p);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
 
     public List<Phong> getRoomsSorted(String sortOrder) {
     // Gọi trực tiếp hàm getAllRooms() có sẵn để lấy đầy đủ dữ liệu chuẩn từ database (không bị lỗi thiếu cột MoTa)

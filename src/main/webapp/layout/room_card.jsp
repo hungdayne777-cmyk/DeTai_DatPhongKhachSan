@@ -2,6 +2,50 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<style>
+    /* ================= TÙY CHỈNH THANH PHÂN TRANG HIỆN ĐẠI ================= */
+    .pagination {
+        gap: 8px; /* Tạo khoảng cách đều giữa các nút */
+        margin-top: 30px;
+    }
+
+    .pagination .page-item .page-link {
+        border-radius: 10px !important; /* Bo tròn góc các nút */
+        padding: 10px 18px;
+        color: #333;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    }
+
+    /* Hiệu ứng khi rê chuột vào nút */
+    .pagination .page-item .page-link:hover {
+        background-color: #f8f9fa;
+        color: #e74c3c; /* Đổi màu chữ sang đỏ khi hover */
+        border-color: #e74c3c;
+        transform: translateY(-2px); /* Hiệu ứng nổi lên nhẹ */
+    }
+
+    /* Trang đang được chọn (Active) */
+    .pagination .page-item.active .page-link {
+        background-color: #e74c3c !important; /* Màu đỏ chủ đạo */
+        border-color: #e74c3c !important;
+        color: #fff !important;
+        box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+    }
+
+    /* Nút bị vô hiệu hóa (Disabled) khi ở trang đầu/trang cuối */
+    .pagination .page-item.disabled .page-link {
+        background-color: #f1f1f1;
+        color: #aaa;
+        border-color: #e0e0e0;
+        box-shadow: none;
+        transform: none;
+    }
+</style>
+
 <div class="our_room">
     <div class="container">
         <div class="row">
@@ -17,7 +61,7 @@
         <div class="row mb-4">
             <div class="col-md-12 d-flex justify-content-end">
                 <!-- Đặt chính xác action trỏ về URL của Servlet danh sách phòng -->
-                <form action="${pageContext.request.contextPath}/rooms" method="get" class="form-inline">
+                <form action="${pageContext.request.contextPath}/Trang-chu" method="get" class="form-inline">
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <label class="input-group-text bg-dark text-white fw-bold" for="sortSelect">
@@ -173,23 +217,50 @@
                 <!-- =========================================================================================== -->
 
             </c:forEach>
-
-            <!-- Script điều khiển đóng/mở popup -->
-            <script>
-                function openRoomModal(maPhong) {
-                    document.getElementById('customModal_' + maPhong).style.display = 'flex';
-                }
-
-                function closeRoomModal(maPhong) {
-                    document.getElementById('customModal_' + maPhong).style.display = 'none';
-                }
-
-                window.onclick = function (event) {
-                    if (event.target.id && event.target.id.startsWith('customModal_')) {
-                        event.target.style.display = 'none';
-                    }
-                }
-            </script>
         </div>
+
+        <!-- ================= THANH PHÂN TRANG ================= -->
+        <div class="row mt-4 mb-5">
+            <div class="col-md-12 d-flex justify-content-center">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <!-- Nút Trang trước -->
+                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="Trang-chu?page=${currentPage - 1}&sort=${param.sort}">Trang trước</a>
+                        </li>
+
+                        <!-- Các số trang -->
+                        <c:forEach begin="1" end="${totalPages}" var="i">
+                            <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                <a class="page-link" href="Trang-chu?page=${i}&sort=${param.sort}">${i}</a>
+                            </li>
+                        </c:forEach>
+
+                        <!-- Nút Trang sau -->
+                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="Trang-chu?page=${currentPage + 1}&sort=${param.sort}">Trang sau</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <!-- =================================================== -->
+
+        <!-- Script điều khiển đóng/mở popup -->
+        <script>
+            function openRoomModal(maPhong) {
+                document.getElementById('customModal_' + maPhong).style.display = 'flex';
+            }
+
+            function closeRoomModal(maPhong) {
+                document.getElementById('customModal_' + maPhong).style.display = 'none';
+            }
+
+            window.onclick = function (event) {
+                if (event.target.id && event.target.id.startsWith('customModal_')) {
+                    event.target.style.display = 'none';
+                }
+            }
+        </script>
     </div>
 </div>

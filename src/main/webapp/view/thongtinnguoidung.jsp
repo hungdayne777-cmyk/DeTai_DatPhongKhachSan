@@ -65,10 +65,20 @@
                         <h4 class="font-weight-bold text-dark mb-1">${sessionScope.acc.username}</h4>
                         <p class="text-muted mb-3">Khách hàng</p>
 
-                        <!-- Ô chọn file upload ảnh đại diện mới -->
-                        <div class="form-group w-100 px-3">
-                            <label class="small text-danger font-weight-bold mb-1">Đổi ảnh đại diện:</label>
-                            <input type="file" name="avatarFile" class="form-control-file form-control-sm border p-1 rounded bg-light" accept="image/*">
+                        <!-- Ô chọn file upload ảnh đại diện mới đã được làm đẹp -->
+                        <div class="form-group w-100 px-3 text-center">
+                            <label class="small text-danger font-weight-bold mb-2 d-block">Đổi ảnh đại diện:</label>
+                            
+                            <!-- Ẩn input file mặc định -->
+                            <input type="file" id="avatarInput" name="avatarFile" class="d-none" accept="image/*" onchange="previewAvatar(this)">
+
+                            <!-- Nút bấm tùy chỉnh hiện đại -->
+                            <button type="button" class="btn btn-outline-dark btn-sm font-weight-bold px-3 py-2 shadow-sm" onclick="document.getElementById('avatarInput').click();" style="border-radius: 8px; transition: all 0.3s;">
+                                <i class="fa fa-cloud-upload-alt mr-1"></i> Chọn ảnh mới
+                            </button>
+                            
+                            <!-- Hiển thị tên file đã chọn -->
+                            <div id="fileNameDisplay" class="small text-muted mt-2 font-italic"></div>
                         </div>
                     </div>
 
@@ -146,5 +156,22 @@
 
     <script src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script xử lý xem trước ảnh và hiển thị tên file -->
+    <script>
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var avatarImg = document.querySelector('.profile-avatar');
+                    if (avatarImg) {
+                        avatarImg.src = e.target.result;
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+                document.getElementById('fileNameDisplay').innerText = "Đã chọn: " + input.files[0].name;
+            }
+        }
+    </script>
 </body>
 </html>
