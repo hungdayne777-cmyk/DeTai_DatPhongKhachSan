@@ -326,24 +326,21 @@ public class PhongDAO {
     
     public List<Phong> getRoomsByPageAndSort(int offset, int noOfRecords, String sortOrder) {
     List<Phong> list = new ArrayList<>();
-    StringBuilder sql = new StringBuilder(
-        "SELECT p.MaPhong, p.TenPhong, p.MaLoai, lp.TenLoai, lp.MoTa, p.Gia, p.TinhTrang, p.hinhAnh " +
-        "FROM Phong p LEFT JOIN LoaiPhong lp ON p.MaLoai = lp.MaLoai WHERE 1=1"
-    );
+    String sql = "SELECT p.MaPhong, p.TenPhong, p.MaLoai, lp.TenLoai, lp.MoTa, p.Gia, p.TinhTrang, p.hinhAnh " +
+                 "FROM Phong p LEFT JOIN LoaiPhong lp ON p.MaLoai = lp.MaLoai ";
 
-    // Xử lý sắp xếp theo giá
     if ("asc".equalsIgnoreCase(sortOrder)) {
-        sql.append(" ORDER BY p.Gia ASC");
+        sql += "ORDER BY p.Gia ASC ";
     } else if ("desc".equalsIgnoreCase(sortOrder)) {
-        sql.append(" ORDER BY p.Gia DESC");
+        sql += "ORDER BY p.Gia DESC ";
     } else {
-        sql.append(" ORDER BY p.TenPhong ASC"); // Mặc định sắp xếp theo tên
+        sql += "ORDER BY p.MaPhong ASC ";
     }
 
-    sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+    sql += "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
     try (Connection conn = new DBConnection().getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+         PreparedStatement ps = conn.prepareStatement(sql)) {
         
         ps.setInt(1, offset);
         ps.setInt(2, noOfRecords);

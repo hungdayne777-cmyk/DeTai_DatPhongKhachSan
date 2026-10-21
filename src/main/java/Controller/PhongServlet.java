@@ -10,47 +10,63 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "PhongServlet", urlPatterns = {"/rooms"})
+@WebServlet(name = "PhongServlet", urlPatterns = {"/rooms", "/room"})
 public class PhongServlet extends HttpServlet {
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    response.setContentType("text/html;charset=UTF-8");
-    request.setCharacterEncoding("UTF-8");
-    
-    String sort = request.getParameter("sort");
-    PhongDAO dao = new PhongDAO();
-    List<Phong> list = null;
-    
-    try {
-        // Gọi hàm sắp xếp
-        if (sort != null && !sort.trim().isEmpty()) {
-            list = dao.getRoomsSorted(sort);
-        }
-        
-        // PHÒNG HỜ: Nếu danh sách sắp xếp bị lỗi hoặc null/rỗng, tự động lấy danh sách gốc để không bị mất phòng
-        if (list == null || list.isEmpty()) {
-            list = dao.getAllRooms(); 
-            // Nếu hàm lấy tất cả phòng của bạn tên khác, ví dụ getAllPhong(), thì thay vào đây
-        }
-        
-        // Sắp xếp an toàn trực tiếp tại Servlet bằng Java Comparator để chắc chắn không bị phụ thuộc vào SQL
-        if (list != null && !list.isEmpty()) {
-            if ("asc".equalsIgnoreCase(sort)) {
-                list.sort((p1, p2) -> Double.compare(p1.getGia(), p2.getGia()));
-            } else if ("desc".equalsIgnoreCase(sort)) {
-                list.sort((p1, p2) -> Double.compare(p2.getGia(), p1.getGia()));
+        response.setContentType("text/html;charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
+
+        PhongDAO dao = new PhongDAO();
+
+        // 1. Cấu hình phân trang: 6 phòng trên 1 trang
+        int page = 1;
+        int recordsPerPage = 6;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageStr);
+            } catch (NumberFormatException e) {
+                page = 1;
             }
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        // Nếu có bất kỳ ngoại lệ nào xảy ra, gán bằng danh sách gốc để trang không bị trắng
-        list = dao.getAllRooms();
+
+        // 2. Nhận tham số sắp xếp giá (asc / desc)
+        String sort = request.getParameter("sort");
+        if (sort == null) {
+            sort = "";
+        }
+
+        int offset = (page - 1) * recordsPerPage;
+        List<Phong> list = null;
+
+        try {
+            // Gọi hàm phân trang & sắp xếp có sẵn trong PhongDAO của bạn
+            list = dao.getRoomsByPageAndSort(offset, recordsPerPage, sort);
+
+            // Tính tổng số trang (truyền null cho keyword và tinhTrang để lấy tổng tất cả phòng)
+            int totalRecords = dao.getTotalRooms(null, null);
+            int noOfPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+
+// In ra cửa sổ Output của NetBeans để kiểm tra giá trị thực tế
+            System.out.println("Total Rooms: " + totalRecords + " - No Of Pages: " + noOfPages);
+
+            request.setAttribute("currentPage", page);
+            request.setAttribute("noOfPages", noOfPages);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Phòng hờ nếu lỗi thì lấy toàn bộ danh sách
+            list = dao.getAllRooms();
+            request.setAttribute("currentPage", 1);
+            request.setAttribute("noOfPages", 1);
+        }
+
+        request.setAttribute("roomList", list);
+        request.setAttribute("currentSort", sort);
+
+        // Điều hướng về trang room.jsp
+        request.getRequestDispatcher("/view/room.jsp").forward(request, response);
     }
-    
-    request.setAttribute("roomList", list);
-    request.setAttribute("currentSort", sort);
-    
-    request.getRequestDispatcher("/view/room.jsp").forward(request, response);
-}
 }

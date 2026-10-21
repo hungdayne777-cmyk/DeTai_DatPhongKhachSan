@@ -92,8 +92,8 @@
                                     </p>
 
                                     <p class="card-text mb-4"><strong>Tình trạng:</strong> 
-                                        <span class="${r.tinhTrang eq 'Trống' ? 'text-success font-weight-bold' : 'text-danger font-weight-bold'}">
-                                            ${r.tinhTrang}
+                                        <span class="${r.tinhTrang != null && r.tinhTrang eq 'Trống' ? 'text-success font-weight-bold' : 'text-danger font-weight-bold'}">
+                                            ${r.tinhTrang != null ? r.tinhTrang : 'Trống'}
                                         </span>
                                     </p>
 
@@ -103,9 +103,9 @@
                                             Chi Tiết
                                         </button>
 
-                                        <!-- CHỈ KHÓA XÁM NÚT KHI TRẠNG THÁI LÀ 'Đang thuê' -->
+                                        <!-- XỬ LÝ NÚT ĐẶT NGAY / HẾT PHÒNG -->
                                         <c:choose>
-                                            <c:when test="${r.tinhTrang eq 'Đang thuê'}">
+                                            <c:when test="${r.tinhTrang != null && r.tinhTrang eq 'Đang thuê'}">
                                                 <button type="button" 
                                                         class="btn btn-secondary btn-sm font-weight-bold" 
                                                         disabled 
@@ -136,7 +136,7 @@
                                     <p class="mb-2"><strong>Mã phòng:</strong> ${r.maPhong}</p>
                                     <p class="mb-2"><strong>Tên phòng:</strong> ${r.tenPhong}</p>
                                     <p class="mb-2"><strong>Giá:</strong> <fmt:formatNumber value="${r.gia}" pattern="#,##0" /> VNĐ</p>
-                                    <p class="mb-3"><strong>Tình trạng:</strong> ${r.tinhTrang}</p>
+                                    <p class="mb-3"><strong>Tình trạng:</strong> ${r.tinhTrang != null ? r.tinhTrang : 'Trống'}</p>
                                     <p class="mb-2"><strong>Mô tả:</strong> ${r.moTa}</p>
                                 </div>
                                 <div style="background: #f8f9fa; padding: 12px 20px; text-align: right;">
@@ -146,6 +146,73 @@
                         </div>
                     </c:forEach>
                 </div>
+
+                <!-- THANH PHÂN TRANG (PAGINATION) - BO TRÒN VÀ MÀU ĐỎ -->
+                <div class="row mt-4 mb-5">
+                    <div class="col-md-12 d-flex justify-content-center">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination custom-pagination">
+                                <!-- Nút Trang trước -->
+                                <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                    <a class="page-link" href="${pageContext.request.contextPath}/rooms?page=${currentPage - 1}&sort=${currentSort}">Trang trước</a>
+                                </li>
+
+                                <!-- Các nút số trang -->
+                                <c:forEach begin="1" end="${noOfPages > 0 ? noOfPages : 2}" var="i">
+                                    <li class="page-item ${currentPage == i ? 'active-red' : ''}">
+                                        <a class="page-link" href="${pageContext.request.contextPath}/rooms?page=${i}&sort=${currentSort}">${i}</a>
+                                    </li>
+                                </c:forEach>
+
+                                <!-- Nút Trang sau -->
+                                <li class="page-item ${currentPage == (noOfPages > 0 ? noOfPages : 2) ? 'disabled' : ''}">
+                                    <a class="page-link" href="${pageContext.request.contextPath}/rooms?page=${currentPage + 1}&sort=${currentSort}">Trang sau</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <style>
+                    /* CSS tùy chỉnh cho phân trang bo tròn và màu đỏ */
+                    .custom-pagination {
+                        display: flex;
+                        align-items: center;
+                    }
+                    .custom-pagination .page-item {
+                        margin: 0 4px; /* Tạo khoảng cách giữa các nút */
+                    }
+                    .custom-pagination .page-link {
+                        border-radius: 8px !important; /* Bo góc mềm mại */
+                        color: #495057;
+                        border: 1px solid #ced4da;
+                        padding: 8px 16px;
+                        font-weight: 500;
+                        background-color: #fff;
+                        transition: all 0.2s ease-in-out;
+                    }
+                    /* Style cho trang đang chọn (Màu đỏ + hiệu ứng bóng nhẹ) */
+                    .custom-pagination .page-item.active-red .page-link {
+                        background-color: #ff4d4f !important;
+                        border-color: #ff4d4f !important;
+                        color: #fff !important;
+                        box-shadow: 0 4px 10px rgba(255, 77, 79, 0.4);
+                    }
+                    /* Style khi rê chuột vào */
+                    .custom-pagination .page-link:hover {
+                        background-color: #f8f9fa;
+                        color: #000;
+                        border-color: #adb5bd;
+                    }
+                    /* Style cho nút bị vô hiệu hóa (disabled) */
+                    .custom-pagination .page-item.disabled .page-link {
+                        color: #b0b0b0;
+                        background-color: #f1f3f5;
+                        border-color: #dee2e6;
+                        cursor: not-allowed;
+                    }
+                </style>
+
             </div>
         </div>
 
